@@ -1,239 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Money - Login</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-
-    body {
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      color: #fff;
-      overflow: hidden;
-    }
-
-    .container {
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Welcome Screen */
-    .welcome-screen {
-      position: fixed;
-      width: 100%;
-      height: 100vh;
-      background: #222;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-size: 2rem;
-      font-weight: bold;
-      z-index: 1000;
-      animation: fadeOut 2s forwards 3s;
-    }
-
-    .welcome-text {
-      opacity: 0;
-      animation: fadeIn 1s forwards;
-    }
-
-    .welcome-text:nth-child(2) { animation-delay: 1s; }
-    .welcome-text:nth-child(3) { animation-delay: 2s; }
-
-    @keyframes fadeIn {
-      0% { opacity: 0; transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes fadeOut {
-      0% { opacity: 1; }
-      100% { opacity: 0; visibility: hidden; }
-    }
-
-    /* Login & Dashboard */
-    .login-box, .dashboard {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-      display: none;
-      animation: slideIn 1s forwards;
-    }
-
-    @keyframes slideIn {
-      0% { opacity: 0; transform: translateY(-20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-      text-align: center;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 5px;
-      font-size: 1rem;
-      background: linear-gradient(to right, #ff416c, #ff4b2b);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .balance {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-    }
-
-    /* Large, Centered Alert Box - Always on Top */
-    .alert-box {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #ffdd00;
-      color: #222;
-      padding: 20px;
-      border-radius: 15px;
-      font-size: 1.5rem;
-      font-weight: bold;
-      display: none;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-      animation: bounce 0.5s ease-in-out;
-      z-index: 2000; /* Ensures it appears above all other elements */
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.1); }
-    }
-
-    .animated-text {
-      opacity: 0;
-      animation: fadeIn 1.5s forwards;
-    }
-
-    .animated-text:nth-child(1) { animation-delay: 0.5s; }
-    .animated-text:nth-child(2) { animation-delay: 1s; }
-    .animated-text:nth-child(3) { animation-delay: 1.5s; }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earning Loot</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="welcome-screen">
+        <h1 id="welcomeText"></h1>
+    </div>
 
-<!-- Welcome Screen -->
-<div class="welcome-screen" id="welcomeScreen">
-  <div class="welcome-text">Welcome to</div>
-  <div class="welcome-text">Earning Loot</div>
-  <div class="welcome-text">Earn Daily!</div>
-</div>
+    <!-- Login Panel -->
+    <div id="loginPanel" class="panel" style="display: none;">
+        <h2>Login</h2>
+        <input type="text" id="loginMobile" placeholder="Enter Mobile Number">
+        <input type="password" id="loginPassword" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+        <p>Did not have any account? <button onclick="showRegister()">Create Account</button></p>
+    </div>
 
-<!-- Alert Box -->
-<div class="alert-box" id="alertBox"></div>
+    <!-- Register Panel -->
+    <div id="registerPanel" class="panel" style="display: none;">
+        <h2>Create Account</h2>
+        <input type="text" id="registerMobile" placeholder="Enter Mobile Number">
+        <input type="password" id="registerPassword" placeholder="Enter Password">
+        <button onclick="register()">Create Account</button>
+        <p>Already have an account? <button onclick="showLogin()">Login</button></p>
+    </div>
 
-<div class="container">
-  <!-- Login Panel -->
-  <div class="login-box" id="loginBox">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Enter Mobile Number">
-    <input type="password" id="password" placeholder="Enter Password">
-    <button id="loginBtn">Login</button>
-  </div>
+    <!-- Dashboard -->
+    <div id="dashboard" class="panel" style="display: none;">
+        <h1 class="animated-text">Earning Loot</h1>
+        <p class="tagline">Earn, Loot, Repeat!</p>
+        <div class="balance-box">
+            <p>Balance: <span id="balance">0</span></p>
+        </div>
+        <button id="earnButton" onclick="openYouTube()">Earn</button>
+        <button onclick="showWithdrawPopup()">Withdraw</button>
+        <button onclick="openTelegram()">Join Telegram</button>
+        <button onclick="logout()">Logout</button>
+    </div>
 
-  <!-- Dashboard -->
-  <div class="dashboard" id="dashboard">
-    <h1>Earning Loot</h1>
-    <p class="animated-text">Earn ₹500 Daily by Watching Videos</p>
-    <p class="animated-text">Withdraw Anytime</p>
-    <p class="animated-text">Join Our Telegram for Updates</p>
-    <p class="balance">Balance: ₹<span id="balance">0</span></p>
-    <button id="earnBtn">Earn ₹500</button>
-    <button id="withdrawBtn">Withdraw</button>
-    <button id="telegramBtn">Join Telegram</button>
-    <button id="logoutBtn">Logout</button>
-  </div>
-</div>
+    <!-- Custom Popup for Withdraw -->
+    <div id="withdrawPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeWithdrawPopup()">&times;</span>
+            <p>We are working to make your withdraw successful!</p>
+        </div>
+    </div>
 
-<script>
-  let users = JSON.parse(localStorage.getItem("users")) || {};
-  let balance = localStorage.getItem("balance") ? parseInt(localStorage.getItem("balance")) : 0;
-
-  function showAlert(message) {
-    let alertBox = document.getElementById("alertBox");
-    alertBox.innerText = message;
-    alertBox.style.display = "block";
-    setTimeout(() => { alertBox.style.display = "none"; }, 3000);
-  }
-
-  function showLogin() {
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("dashboard").style.display = "none";
-  }
-
-  function showDashboard() {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    document.getElementById("balance").innerText = balance;
-  }
-
-  setTimeout(() => {
-    document.getElementById("welcomeScreen").style.display = "none";
-    showLogin();
-  }, 3000);
-
-  document.getElementById("loginBtn").addEventListener("click", function() {
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
-
-    if (!username || !password) {
-      showAlert("Please enter valid credentials!");
-      return;
-    }
-
-    if (!users[username]) {
-      users[username] = password;
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("balance", 0);
-      showAlert("Account created successfully! Balance: ₹0");
-    } else if (users[username] !== password) {
-      showAlert("Incorrect password!");
-      return;
-    }
-
-    localStorage.setItem("loggedInUser", username);
-    showDashboard();
-    showAlert("Login successful!");
-  });
-
-  document.getElementById("logoutBtn").addEventListener("click", function() {
-    showLogin();
-    showAlert("Logged out successfully!");
-  });
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
