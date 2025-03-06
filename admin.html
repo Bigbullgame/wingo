@@ -1,0 +1,29 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Earning Loot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Admin Login Panel -->
+    <div id="adminLoginPanel" class="panel">
+        <h2>Admin Login</h2>
+        <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+        <button onclick="adminLogin()">Login</button>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="panel" style="display: none;">
+        <h2>Admin Dashboard</h2>
+        <div>
+            <h3>Withdraw Requests</h3>
+            <div id="withdrawRequests"></div>
+        </div>
+        <button class="logout-button" onclick="adminLogout()">Logout</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
