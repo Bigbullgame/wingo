@@ -1,0 +1,228 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earning Loot - Futuristic</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/lottie-player@1.5.7/dist/lottie-player.js"></script>
+    <style>
+        :root {
+            --primary-color: #00ff88; /* Neon green */
+            --secondary-color: #00b8ff; /* Neon blue */
+            --background-color: #1a1a1a; /* Dark background */
+            --text-color: #ffffff; /* White text */
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--background-color);
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-size: 1.2em;
+            margin: 10px 0;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+        }
+
+        .balance-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.5em;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background: var(--background-color);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+
+        .custom-alert {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: var(--background-color);
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        #announcementBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--background-color);
+            color: var(--text-color);
+            text-align: center;
+            padding: 10px;
+            font-size: 1.2em;
+            z-index: 1000;
+        }
+
+        #threejs-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js Background -->
+    <div id="threejs-background"></div>
+
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="glass-effect">
+        <h1 id="welcomeText"></h1>
+    </div>
+
+    <!-- Login Panel -->
+    <div id="loginPanel" class="glass-effect" style="display: none;">
+        <h2>Login</h2>
+        <input type="text" id="loginMobile" placeholder="Enter Mobile Number">
+        <input type="password" id="loginPassword" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+        <p>Don't have an account? <button onclick="showRegister()">Create Account</button></p>
+    </div>
+
+    <!-- Register Panel -->
+    <div id="registerPanel" class="glass-effect" style="display: none;">
+        <h2>Create Account</h2>
+        <p>For creating an account, please contact us on Telegram.</p>
+        <button class="telegram-button" onclick="openTelegram()">Contact on Telegram</button>
+        <p>Already have an account? <button onclick="showLogin()">Login</button></p>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="glass-effect" style="display: none;">
+        <h1>Earning Loot</h1>
+        <p class="tagline">Watch video and earn 500🤑</p>
+        <div class="balance-box">
+            <p>Balance: <span id="balance">0</span></p>
+        </div>
+        <button id="earnButton" onclick="openYouTube()">Earn</button>
+        <p id="timer"></p>
+        <button class="withdraw-button" onclick="openWithdrawForm()">Withdraw</button>
+        <button class="telegram-button" onclick="openTelegram()">Join Telegram</button>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Withdraw Form Popup -->
+    <div id="withdrawFormPopup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeWithdrawForm()">&times;</span>
+            <h2>Withdraw Funds</h2>
+            <form onsubmit="submitWithdrawForm(event)">
+                <input type="number" id="amount" placeholder="Enter Amount" required>
+                <input type="text" id="name" placeholder="Enter Your Name" required>
+                <input type="text" id="accountNumber" placeholder="Enter Bank Account Number" required>
+                <input type="text" id="ifscCode" placeholder="Enter IFSC Code" required>
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Alert Box -->
+    <div id="customAlert" class="custom-alert">
+        <p id="alertMessage"></p>
+    </div>
+
+    <script>
+        // Three.js Background
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('threejs-background').appendChild(renderer.domElement);
+
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff88, wireframe: true });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Rest of the JavaScript code remains the same as before
+    </script>
+</body>
+</html>
