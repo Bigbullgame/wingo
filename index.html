@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earning Loot</title>
+    <style>
+        body {
+            background: url('123.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            background-color: #1e3c72;
+        }
+
+        .welcome-screen {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+            color: #ff5722;
+            animation: fadeIn 2s ease-in-out;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        .welcome-screen h1 {
+            font-size: 3em;
+            animation: slideIn 1.5s ease-in-out;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 87, 34, 0.7);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            width: 320px;
+            max-width: 90%;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease-in-out;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, #ff5722, #4CAF50, #007BFF, #9C27B0);
+            background-size: 400% 400%;
+            animation: glowing 5s linear infinite;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        @keyframes glowing {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+            outline: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, opacity 0.2s ease, background 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover:not(:disabled) {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #earnButton { background: linear-gradient(45deg, #4CAF50, #45A049); }
+        #withdrawButton { background: linear-gradient(45deg, #FF5722, #E64A19); }
+        #joinTelegramButton { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
+        #logoutButton { background: linear-gradient(45deg, #007BFF, #005BB5); }
+        #loginButton { background: linear-gradient(45deg, #FF5722, #E64A19); }
+        #submitRegisterButton { background: linear-gradient(45deg, #4CAF50, #45A049); }
+        #registerButton { background: linear-gradient(45deg, #9C27B0, #7B1FA2); }
+        #backToLoginButton { background: linear-gradient(45deg, #007BFF, #005BB5); }
+        .submit-button { background: linear-gradient(45deg, #FF5722, #E64A19); }
+
+        .balance-box {
+            background: linear-gradient(45deg, #007BFF, #005BB5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 1.5em;
+            color: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #timer {
+            font-size: 1.1em;
+            color: #555;
+            margin: 10px 0;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            animation: popupScaleIn 0.3s ease forwards;
+            max-width: 90%;
+            width: 320px;
+        }
+
+        @keyframes popupScaleIn {
+            to { transform: scale(1); }
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #FF5722;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover { color: #E64A19; }
+
+        .custom-alert {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.5s ease-in-out;
+            z-index: 50;
+            font-size: 1.1em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-alert.active {
+            opacity: 1;
+        }
+
+        #announcementBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 1.1em;
+            z-index: 1500;
+            transform: translateY(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        #announcementBar.active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 400px) {
+            .welcome-screen { width: 90%; padding: 20px; }
+            .welcome-screen h1 { font-size: 2em; }
+            .panel { width: 90%; padding: 15px; }
+            .panel h2 { font-size: 1.5em; }
+            input { font-size: 0.9em; padding: 10px; }
+            button { font-size: 1em; padding: 10px; }
+            .popup-content { width: 85%; padding: 15px; }
+            .balance-box { font-size: 1.2em; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="welcomeScreen" class="welcome-screen">
+        <h1 id="welcomeText"></h1>
+    </div>
+
+    <div id="loginPanel" class="panel" style="display: none;">
+        <h2>Login</h2>
+        <input type="text" id="loginMobile" placeholder="Enter Mobile Number" required>
+        <input type="password" id="loginPassword" placeholder="Enter Password" required>
+        <button id="loginButton">Login</button>
+        <p>Don't have an account? <button id="registerButton">Create Account</button></p>
+    </div>
+
+    <div id="registerPanel" class="panel" style="display: none;">
+        <h2>Create Account</h2>
+        <p>Enter details and admin password to create an account.</p>
+        <input type="text" id="registerMobile" placeholder="Enter Mobile Number" required>
+        <input type="password" id="registerPassword" placeholder="Enter Password" required>
+        <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
+        <button id="submitRegisterButton">Create Account</button>
+        <p>Already have an account? <button id="backToLoginButton">Login</button></p>
+    </div>
+
+    <div id="dashboard" class="panel" style="display: none;">
+        <h1 class="animated-text">Earning Loot</h1>
+        <p class="tagline">Watch video and earn 5🤑</p>
+        <div class="balance-box">
+            <p>Balance: <span id="balance">0</span> ₹</p>
+        </div>
+        <button id="earnButton">Earn</button>
+        <p id="timer"></p>
+        <button id="withdrawButton">Withdraw</button>
+        <button id="joinTelegramButton">Join Telegram</button>
+        <button id="logoutButton">Logout</button>
+    </div>
+
+    <div id="withdrawFormPopup" class="popup">
+        <div class="popup-content">
+            <span class="close-btn" id="closeWithdrawFormButton">×</span>
+            <h2>Withdraw Funds</h2>
+            <form id="withdrawForm" onsubmit="submitWithdrawForm(event)">
+                <input type="number" id="amount" placeholder="Enter Amount" required min="1">
+                <input type="text" id="name" placeholder="Enter Your Name" required>
+                <input type="text" id="accountNumber" placeholder="Enter Bank Account Number" required>
+                <input type="text" id="ifscCode" placeholder="Enter IFSC Code" required>
+                <button type="submit" class="submit-button">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="customAlert" class="custom-alert">
+        <p id="alertMessage"></p>
+    </div>
+
+    <div id="announcementBar"></div>
+
+    <script>
+        const serverBotToken = '8089873363:AAE9UmxF93CLZEVFuAEgqu08X3Goj8ARFZg';
+        const withdrawBotToken = '7799495376:AAG-qEQ_10oeHBLJ8nxMxXCf0dyf5y6Sdr8';
+        const chatId = '6889555911';
+        const adminPass = 'admin123';
+
+        let isProcessing = false; // Flag to prevent double-clicks
+
+        // Welcome Screen Animation
+        const welcomeText = "Welcome To Earning Loot";
+        const welcomeElement = document.getElementById('welcomeText');
+        let index = 0;
+
+        function typeWelcomeText() {
+            if (index < welcomeText.length) {
+                welcomeElement.innerHTML += welcomeText.charAt(index);
+                index++;
+                setTimeout(typeWelcomeText, 120);
+            } else {
+                setTimeout(() => {
+                    document.getElementById('welcomeScreen').style.display = 'none';
+                    document.getElementById('loginPanel').style.display = 'block';
+                }, 1500);
+            }
+        }
+        typeWelcomeText();
+
+        // Event Listeners
+        document.getElementById('loginButton').addEventListener('click', login);
+        document.getElementById('registerButton').addEventListener('click', showRegister);
+        document.getElementById('submitRegisterButton').addEventListener('click', register);
+        document.getElementById('backToLoginButton').addEventListener('click', showLogin);
+        document.getElementById('earnButton').addEventListener('click', openYouTube);
+        document.getElementById('withdrawButton').addEventListener('click', openWithdrawForm);
+        document.getElementById('joinTelegramButton').addEventListener('click', openTelegram);
+        document.getElementById('logoutButton').addEventListener('click', logout);
+        document.getElementById('closeWithdrawFormButton').addEventListener('click', closeWithdrawForm);
+
+        // Login Function
+        async function login() {
+            if (isProcessing) return; // Prevent double-click
+            isProcessing = true;
+            const loginButton = document.getElementById('loginButton');
+            loginButton.disabled = true;
+
+            const mobile = document.getElementById('loginMobile').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            console.log('Attempting login with:', { mobile, password });
+            const user = await getUserData(mobile, password);
+            console.log('User data received:', user);
+
+            if (user) {
+                document.getElementById('loginPanel').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                updateBalance(user.balance);
+                startTimer(user.lastEarned);
+                updateEarnButtonState(user.lastEarned);
+                showCustomAlert('Login successful!');
+            } else {
+                showCustomAlert('Invalid ID or password. Check your details.');
+            }
+
+            isProcessing = false;
+            loginButton.disabled = false;
+        }
+
+        // Show Register Panel
+        function showRegister() {
+            document.getElementById('loginPanel').style.display = 'none';
+            document.getElementById('registerPanel').style.display = 'block';
+        }
+
+        // Show Login Panel
+        function showLogin() {
+            document.getElementById('registerPanel').style.display = 'none';
+            document.getElementById('loginPanel').style.display = 'block';
+        }
+
+        // Register Function
+        async function register() {
+            if (isProcessing) return; // Prevent double-click
+            isProcessing = true;
+            const registerButton = document.getElementById('submitRegisterButton');
+            registerButton.disabled = true;
+
+            const mobile = document.getElementById('registerMobile').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const adminPassword = document.getElementById('adminPassword').value.trim();
+
+            if (adminPassword !== adminPass) {
+                showCustomAlert('Invalid admin password!');
+                isProcessing = false;
+                registerButton.disabled = false;
+                return;
+            }
+
+            const existingUser = await getUserData(mobile);
+            if (existingUser) {
+                showCustomAlert('Mobile number already registered!');
+                isProcessing = false;
+                registerButton.disabled = false;
+                return;
+            }
+
+            const userData = {
+                mobile: mobile,
+                password: password,
+                balance: 20,
+                lastEarned: null
+            };
+
+            console.log('Registering user:', userData);
+            await sendToTelegram(`USER_DATA:${mobile}:${JSON.stringify(userData)}`, serverBotToken);
+            showCustomAlert('Account created with 20₹ bonus! You can now login.');
+
+            isProcessing = false;
+            registerButton.disabled = false;
+            showLogin();
+        }
+
+        // Open YouTube and Add Balance
+        async function openYouTube() {
+            if (isProcessing) return;
+            isProcessing = true;
+            const earnButton = document.getElementById('earnButton');
+            earnButton.disabled = true;
+
+            const mobile = document.getElementById('loginMobile').value.trim();
+            const user = await getUserData(mobile);
+
+            if (!user) {
+                isProcessing = false;
+                earnButton.disabled = false;
+                return;
+            }
+
+            const lastEarned = user.lastEarned;
+            const currentTime = new Date().getTime();
+
+            if (!lastEarned || (currentTime - lastEarned) >= 24 * 60 * 60 * 1000) {
+                window.open('https://tpi.li/X53AQ', '_blank');
+                const newBalance = user.balance + 5;
+                const updatedUser = { ...user, balance: newBalance, lastEarned: currentTime };
+                await sendToTelegram(`USER_DATA:${mobile}:${JSON.stringify(updatedUser)}`, serverBotToken);
+                updateBalance(newBalance);
+                startTimer(currentTime);
+                updateEarnButtonState(currentTime);
+                showCustomAlert('5 ₹ added to your balance!');
+            } else {
+                showCustomAlert('You can only earn once every 24 hours.');
+            }
+
+            isProcessing = false;
+            earnButton.disabled = false;
+        }
+
+        // Update Earn Button State
+        function updateEarnButtonState(lastEarned) {
+            const earnButton = document.getElementById('earnButton');
+            const currentTime = new Date().getTime();
+            if (lastEarned && (currentTime - lastEarned) < 24 * 60 * 60 * 1000) {
+                earnButton.disabled = true;
+            } else {
+                earnButton.disabled = false;
+            }
+        }
+
+        // Update Balance Display
+        function updateBalance(balance) {
+            document.getElementById('balance').innerText = balance.toFixed(2);
+        }
+
+        // Open Withdraw Form
+        function openWithdrawForm() {
+            const popup = document.getElementById('withdrawFormPopup');
+            popup.classList.add('active');
+        }
+
+        // Close Withdraw Form
+        function closeWithdrawForm() {
+            const popup = document.getElementById('withdrawFormPopup');
+            popup.classList.remove('active');
+            document.getElementById('withdrawForm').reset();
+        }
+
+        // Submit Withdraw Form
+        async function submitWithdrawForm(event) {
+            event.preventDefault();
+            if (isProcessing) return;
+            isProcessing = true;
+            const submitButton = document.querySelector('.submit-button');
+            submitButton.disabled = true;
+
+            const mobile = document.getElementById('loginMobile').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const name = document.getElementById('name').value.trim();
+            const accountNumber = document.getElementById('accountNumber').value.trim();
+            const ifscCode = document.getElementById('ifscCode').value.trim();
+
+            const user = await getUserData(mobile);
+            if (amount <= 0 || amount > user.balance) {
+                showCustomAlert('Insufficient balance or invalid amount!');
+                isProcessing = false;
+                submitButton.disabled = false;
+                return;
+            }
+
+            const newBalance = user.balance - amount;
+            const updatedUser = { ...user, balance: newBalance };
+            await sendToTelegram(`USER_DATA:${mobile}:${JSON.stringify(updatedUser)}`, serverBotToken);
+            updateBalance(newBalance);
+
+            const message = `
+Withdrawal Request:
+User ID: ${mobile}
+Amount: ${amount} ₹
+Name: ${name}
+Bank Account Number: ${accountNumber}
+IFSC Code: ${ifscCode}
+Timestamp: ${new Date().toLocaleString()}
+            `;
+
+            await sendToTelegram(message, withdrawBotToken);
+            showCustomAlert('Withdrawal request submitted!');
+            closeWithdrawForm();
+
+            isProcessing = false;
+            submitButton.disabled = false;
+        }
+
+        // Get User Data from Telegram Chat (Optimized)
+        async function getUserData(mobile, password = null) {
+            let offset = -100; // Fetch recent messages to reduce latency
+            let latestUserData = null;
+
+            const url = `https://api.telegram.org/bot${serverBotToken}/getUpdates?offset=${offset}&timeout=5`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('Telegram response:', data);
+
+                if (data.ok && data.result.length > 0) {
+                    const messages = data.result.reverse();
+                    for (let msg of messages) {
+                        if (msg.message && msg.message.text && msg.message.text.startsWith(`USER_DATA:${mobile}:`)) {
+                            const userDataStr = msg.message.text.split(`USER_DATA:${mobile}:`)[1];
+                            try {
+                                const userData = JSON.parse(userDataStr);
+                                console.log('Parsed user data:', userData);
+                                if (!password || userData.password === password) {
+                                    latestUserData = userData;
+                                    break;
+                                }
+                            } catch (parseError) {
+                                console.error('Error parsing user data:', parseError);
+                                continue;
+                            }
+                        }
+                        if (msg.message && msg.message.text && msg.message.text.startsWith(`UPDATE_BALANCE:${mobile}:`)) {
+                            const amount = parseFloat(msg.message.text.split(`UPDATE_BALANCE:${mobile}:`)[1]);
+                            if (latestUserData) {
+                                latestUserData.balance += amount;
+                                await sendToTelegram(`USER_DATA:${mobile}:${JSON.stringify(latestUserData)}`, serverBotToken);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching updates:', error);
+                showCustomAlert('Error fetching data. Check network.');
+                return null;
+            }
+
+            if (!latestUserData && password) {
+                console.log(`No matching user data found for ${mobile}`);
+            }
+
+            return latestUserData;
+        }
+
+        // Send to Telegram Bot
+        async function sendToTelegram(message, botToken) {
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message
+                    })
+                });
+                const data = await response.json();
+                console.log('Send to Telegram response:', data);
+                if (!data.ok) {
+                    showCustomAlert(`Failed to send: ${data.description}`);
+                }
+            } catch (error) {
+                showCustomAlert('Network error. Check your connection.');
+                console.error('Error in sendToTelegram:', error);
+            }
+        }
+
+        // Open Telegram
+        function openTelegram() {
+            window.open('https://t.me/Earninglooter9099', '_blank');
+        }
+
+        // Logout
+        function logout() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginPanel').style.display = 'block';
+            clearInterval(timerInterval);
+        }
+
+        // Custom Alert Box
+        function showCustomAlert(message) {
+            const alertBox = document.getElementById('customAlert');
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.innerText = message;
+            alertBox.style.display = 'block';
+            alertBox.classList.add('active');
+            setTimeout(() => {
+                alertBox.classList.remove('active');
+                setTimeout(() => alertBox.style.display = 'none', 300);
+            }, 3000);
+        }
+
+        // Timer Function with Announcement
+        let timerInterval;
+        function startTimer(lastEarned) {
+            const timerElement = document.getElementById('timer');
+            clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                const currentTime = new Date().getTime();
+                const nextEarnTime = lastEarned ? lastEarned + 24 * 60 * 60 * 1000 : currentTime;
+                const remainingTime = nextEarnTime - currentTime;
+
+                if (remainingTime <= 0) {
+                    timerElement.innerText = 'You can earn now!';
+                    updateEarnButtonState(null);
+                    return;
+                }
+
+                const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+                timerElement.innerText = `Next earn in: ${hours}h ${minutes}m ${seconds}s`;
+                updateEarnButtonState(lastEarned);
+            }, 1000);
+
+            const announcementBar = document.getElementById('announcementBar');
+            announcementBar.classList.add('active');
+            function showRandomAnnouncement() {
+                const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000);
+                const maskedNumber = `+91${'*'.repeat(7)}`;
+                const randomAmount = Math.floor(500 + Math.random() * 1500);
+
+                const announcements = [
+                    `User ${randomNumber} just earned 5!`,
+                    `Withdrawn: ${randomAmount}₹ by ${maskedNumber}`,
+                    `New withdrawal: ${randomAmount}₹ by ${maskedNumber}`,
+                    `User ${maskedNumber} earned 5!`,
+                    `Withdrawn: ${randomAmount}₹ by User ${randomNumber}`
+                ];
+
+                announcementBar.innerText = announcements[Math.floor(Math.random() * announcements.length)];
+            }
+            setInterval(showRandomAnnouncement, 3000);
+            showRandomAnnouncement();
+        }
+    </script>
+</body>
+</html>
