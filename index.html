@@ -6,6 +6,10 @@
     <title>BigBull - Win Go</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
+    <div class="loading-bar-container" id="loading-bar-container">
+    <div class="loading-bar" id="loading-bar"></div>
+</div>
+        
         :root {
             --primary-color: #ff3b3b;
             --secondary-color: #ff5252;
@@ -85,6 +89,24 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
+        .loading-bar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #f0f0f0;
+    z-index: 1000;
+    display: none;
+}
+
+.loading-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #ff3b3b;
+    transition: width 0.5s ease;
+}
 
         .error-popup {
     position: fixed;
@@ -1640,6 +1662,16 @@
             updateBetFeeDisplay();
             document.getElementById('bet-slip').style.display = 'block';
         }
+
+                document.getElementById('login-button').addEventListener('click', () => {
+    showLoading('Logging in...');
+    setTimeout(handleLogin, 1000);
+});
+
+document.getElementById('register-button').addEventListener('click', () => {
+    showLoading('Registering...');
+    setTimeout(handleRegister, 1000);
+});
 
         function handlePlaceBet() {
             if (!selectedBet) return showCustomAlert('Error', 'Select a bet');
