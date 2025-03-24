@@ -86,6 +86,20 @@
             transition: background 0.2s;
         }
 
+        .error-popup {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ff3b3b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+        }
+
         .balance-action.deposit { background: var(--green-color); }
         .balance-action.withdraw { background: var(--orange-color); }
         .balance-action:hover { background: var(--secondary-color); }
@@ -990,6 +1004,7 @@
             </div>
         </div>
     </div>
+    <div class="error-popup" id="error-popup">Wrong Password</div>
 
     <!-- Main App -->
     <div class="app-container" id="app-container" style="display: none;">
@@ -1384,6 +1399,29 @@
                     openBetSlip();
                 });
             });
+
+        function handleLogin() {
+    const mobile = document.getElementById('login-mobile').value;
+    const password = document.getElementById('login-password').value;
+
+    if (!mobile || !password) {
+        showCustomAlert('Error', 'Enter mobile and password');
+        hideLoading();
+        return;
+    }
+
+    const user = users.get(mobile);
+    if (!user || user.password !== password) {
+        document.getElementById('error-popup').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('error-popup').style.display = 'none';
+        }, 3000); // 3 seconds ke baad popup hide ho jayega
+        hideLoading();
+        return;
+    }
+
+    // Rest of the login logic...
+        }
 
             document.querySelectorAll('.multiplier-option:not(.random-bet)').forEach(option => {
                 option.addEventListener('click', function() {
