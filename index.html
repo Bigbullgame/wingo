@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Seller.com - Premium Gift Code Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00b4d8;
+            --secondary-color: #0077b6;
+            --accent-color: #ff6b35;
+            --success-color: #06d6a0;
+            --warning-color: #ffd166;
+            --danger-color: #f72585;
+            --dark-color: #2d3436;
+            --light-color: #ffffff;
+            --text-color: #2d3436;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --roblox-gradient: linear-gradient(135deg, #00b4d8 0%, #0077b6 50%, #023e8a 100%);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--light-color);
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: var(--roblox-gradient);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-logo {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--light-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        /* Authentication Screens */
+        .auth-container {
+            display: none;
+            min-height: calc(100vh - 80px);
+            background: var(--bg-gradient);
+            padding: 40px 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-container.active {
+            display: flex;
+        }
+
+        .auth-card {
+            background: var(--light-color);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .auth-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--light-color);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: var(--roblox-gradient);
+            color: var(--light-color);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .auth-switch {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            min-height: calc(100vh - 140px);
+            padding-bottom: 80px;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--light-color);
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 80px;
+            z-index: 90;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+        }
+
+        /* Home Section */
+        .home-section {
+            padding: 30px 20px;
+        }
+
+        .hero-card {
+            background: var(--roblox-gradient);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: var(--light-color);
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .roblox-logo {
+            width: 120px;
+            height: 120px;
+            background: var(--light-color);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--primary-color);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: var(--light-color);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--roblox-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: var(--light-color);
+            font-size: 24px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .feature-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Seller Area */
+        .seller-section {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .seller-section.active {
+            display: block;
+        }
+
+        .seller-card {
+            background: var(--light-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        .seller-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .seller-title i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: var(--light-color);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 20px;
+            background: var(--roblox-gradient);
+            color: var(--light-color);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        /* User Info Display */
+        .user-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            color: var(--light-color);
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--light-color);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: var(--light-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #d63384;
+            transform: translateY(-1px);
+        }
+
+        /* Profile Section */
+        .profile-section {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .profile-section.active {
+            display: block;
+        }
+
+        .profile-card {
+            background: var(--roblox-gradient);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: var(--light-color);
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--light-color);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--primary-color);
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-email {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .logout-button {
+            width: 100%;
+            padding: 15px;
+            background: var(--danger-color);
+            color: var(--light-color);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background: #d63384;
+            transform: translateY(-2px);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            background: var(--light-color);
+            display: flex;
+            border-top: 1px solid #e0e0e0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            background: rgba(0, 180, 216, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Alert Modal */
+        .alert-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-overlay.active {
+            display: flex;
+        }
+
+        .alert-modal {
+            background: var(--light-color);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .alert-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--light-color);
+        }
+
+        .alert-icon.success {
+            background: var(--success-color);
+        }
+
+        .alert-icon.error {
+            background: var(--danger-color);
+        }
+
+        .alert-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .alert-message {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+
+        .alert-button {
+            padding: 12px 30px;
+            background: var(--primary-color);
+            color: var(--light-color);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .alert-button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        /* Loading Spinner */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--light-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: var(--light-color);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 30px 20px;
+            }
+            
+            .hero-card {
+                padding: 20px;
+            }
+            
+            .seller-card {
+                padding: 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tab {
+                padding: 15px 10px;
+                font-size: 14px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-logo">SELLER.COM</div>
+            <div class="header-subtitle">Premium Gift Code Marketplace</div>
+        </div>
+
+        <!-- Login Screen -->
+        <div class="auth-container" id="login-container">
+            <div class="auth-card fade-in-up">
+                <div class="auth-title">Welcome Back</div>
+                <div class="auth-subtitle">Sign in to your account</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Email Address</label>
+                    <input type="email" class="input-field" id="login-email" placeholder="Enter your email">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Password</label>
+                    <input type="password" class="input-field" id="login-password" placeholder="Enter your password">
+                </div>
+                
+                <button class="auth-button" id="login-button">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                
+                <div class="auth-switch">
+                    Don't have an account? 
+                    <span class="auth-link" id="show-register">Create Account</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Screen -->
+        <div class="auth-container" id="register-container">
+            <div class="auth-card fade-in-up">
+                <div class="auth-title">Create Account</div>
+                <div class="auth-subtitle">Join our marketplace today</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Full Name</label>
+                    <input type="text" class="input-field" id="register-name" placeholder="Enter your full name">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Email Address</label>
+                    <input type="email" class="input-field" id="register-email" placeholder="Enter your email">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Password</label>
+                    <input type="password" class="input-field" id="register-password" placeholder="Create a password">
+                </div>
+                
+                <button class="auth-button" id="register-button">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                
+                <div class="auth-switch">
+                    Already have an account? 
+                    <span class="auth-link" id="show-login">Sign In</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-section="home">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button class="nav-tab" data-section="seller">
+                    <i class="fas fa-store"></i> Seller Area
+                </button>
+            </div>
+
+            <!-- Home Section -->
+            <div class="home-section" id="home-section">
+                <div class="hero-card fade-in-up">
+                    <div class="roblox-logo">
+                        <i class="fab fa-r-project"></i>
+                    </div>
+                    <div class="hero-title">Roblox Gift Codes</div>
+                    <div class="hero-subtitle">Buy and sell premium Roblox gift codes safely and securely</div>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="feature-title">Secure Trading</div>
+                        <div class="feature-desc">All transactions are protected with advanced security measures</div>
+                    </div>
+
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="feature-title">Instant Delivery</div>
+                        <div class="feature-desc">Get your gift codes delivered instantly after purchase</div>
+                    </div>
+
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="feature-title">Best Prices</div>
+                        <div class="feature-desc">Competitive pricing with transparent fee structure</div>
+                    </div>
+
+                    <div class="feature-card fade-in-up">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="feature-title">24/7 Support</div>
+                        <div class="feature-desc">Round-the-clock customer support for all your needs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seller Area -->
+            <div class="seller-section" id="seller-section">
+                <!-- User Info -->
+                <div class="user-info fade-in-up">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-name" id="user-name">John Doe</div>
+                    <div class="user-email" id="user-email">john@example.com</div>
+                    <button class="logout-btn" id="logout-button">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+
+                <div class="seller-card fade-in-up">
+                    <div class="seller-title">
+                        <i class="fas fa-plus-circle"></i>
+                        Sell Your Gift Code
+                    </div>
+                    
+                    <form id="seller-form">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-tag"></i> Code Type
+                            </label>
+                            <select class="form-select" id="gift-code-type" required>
+                                <option value="">Select gift code type</option>
+                                <option value="Roblox $10">Roblox $10</option>
+                                <option value="Roblox $25">Roblox $25</option>
+                                <option value="Roblox $50">Roblox $50</option>
+                                <option value="Roblox $100">Roblox $100</option>
+                                <option value="Steam $10">Steam $10</option>
+                                <option value="Steam $25">Steam $25</option>
+                                <option value="Steam $50">Steam $50</option>
+                                <option value="Amazon $25">Amazon $25</option>
+                                <option value="Amazon $50">Amazon $50</option>
+                                <option value="Google Play $25">Google Play $25</option>
+                                <option value="Apple Store $25">Apple Store $25</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-key"></i> Enter Gift Code
+                            </label>
+                            <input type="text" class="form-input" id="gift-code-value" placeholder="Enter your gift code" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-mobile-alt"></i> UPI ID for Money Receiving
+                            </label>
+                            <input type="text" class="form-input" id="upi-id" placeholder="Enter your UPI ID (e.g., yourname@paytm)" required>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-paper-plane"></i>
+                            Submit Gift Code
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Modal -->
+        <div class="alert-overlay" id="alert-overlay">
+            <div class="alert-modal">
+                <div class="alert-icon" id="alert-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="alert-title" id="alert-title">Success</div>
+                <div class="alert-message" id="alert-message">Operation completed successfully!</div>
+                <button class="alert-button" id="alert-button">OK</button>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loading-text">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentUser = null;
+        
+        // Telegram Bot Configuration (Same as withdraw requests)
+        const SELLER_BOT_API = '7799495376:AAG-qEQ_10oeHBLJ8nxMxXCf0dyf5y6Sdr8';
+        const SELLER_CHAT_ID = '-1002550626684';
+
+        // DOM Elements
+        const loginContainer = document.getElementById('login-container');
+        const registerContainer = document.getElementById('register-container');
+        const mainContent = document.getElementById('main-content');
+        const alertOverlay = document.getElementById('alert-overlay');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            checkAuthStatus();
+        }
+
+        function setupEventListeners() {
+            // Auth switching
+            document.getElementById('show-register').addEventListener('click', showRegister);
+            document.getElementById('show-login').addEventListener('click', showLogin);
+            
+            // Auth forms
+            document.getElementById('login-button').addEventListener('click', handleLogin);
+            document.getElementById('register-button').addEventListener('click', handleRegister);
+            
+            // Navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', handleNavigation);
+            });
+            
+            // Seller form
+            document.getElementById('seller-form').addEventListener('submit', handleSellerSubmit);
+            
+            // Logout
+            document.getElementById('logout-button').addEventListener('click', handleLogout);
+            
+            // Alert modal
+            document.getElementById('alert-button').addEventListener('click', hideAlert);
+            
+            // Click outside alert to close
+            alertOverlay.addEventListener('click', function(e) {
+                if (e.target === alertOverlay) {
+                    hideAlert();
+                }
+            });
+        }
+
+        function checkAuthStatus() {
+            const savedUser = localStorage.getItem('sellerUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainContent();
+                updateUserInfo();
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            loginContainer.classList.add('active');
+            registerContainer.classList.remove('active');
+            mainContent.classList.remove('active');
+        }
+
+        function showRegister() {
+            registerContainer.classList.add('active');
+            loginContainer.classList.remove('active');
+            mainContent.classList.remove('active');
+        }
+
+        function showMainContent() {
+            mainContent.classList.add('active');
+            loginContainer.classList.remove('active');
+            registerContainer.classList.remove('active');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                showAlert('error', 'Error', 'Please fill in all fields');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showAlert('error', 'Error', 'Please enter a valid email address');
+                return;
+            }
+            
+            showLoading('Signing in...');
+            
+            // Simulate API call
+            setTimeout(() => {
+                const savedUser = localStorage.getItem(`user_${email}`);
+                
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    if (userData.password === password) {
+                        currentUser = userData;
+                        localStorage.setItem('sellerUser', JSON.stringify(currentUser));
+                        hideLoading();
+                        showMainContent();
+                        updateUserInfo();
+                        showAlert('success', 'Welcome Back!', `Hello ${currentUser.name}, welcome to Seller.com`);
+                    } else {
+                        hideLoading();
+                        showAlert('error', 'Error', 'Invalid password');
+                    }
+                } else {
+                    hideLoading();
+                    showAlert('error', 'Error', 'Account not found. Please register first.');
+                }
+            }, 1500);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            
+            if (!name || !email || !password) {
+                showAlert('error', 'Error', 'Please fill in all fields');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showAlert('error', 'Error', 'Please enter a valid email address');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAlert('error', 'Error', 'Password must be at least 6 characters long');
+                return;
+            }
+            
+            showLoading('Creating account...');
+            
+            // Check if user already exists
+            const existingUser = localStorage.getItem(`user_${email}`);
+            if (existingUser) {
+                hideLoading();
+                showAlert('error', 'Error', 'An account with this email already exists');
+                return;
+            }
+            
+            // Simulate API call
+            setTimeout(() => {
+                const userData = {
+                    name: name,
+                    email: email,
+                    password: password,
+                    joinDate: new Date().toISOString(),
+                    userId: generateUserId()
+                };
+                
+                localStorage.setItem(`user_${email}`, JSON.stringify(userData));
+                currentUser = userData;
+                localStorage.setItem('sellerUser', JSON.stringify(currentUser));
+                
+                hideLoading();
+                showMainContent();
+                updateUserInfo();
+                showAlert('success', 'Account Created!', 'Welcome to Seller.com! You can now start selling gift codes.');
+            }, 1500);
+        }
+
+        function handleNavigation(e) {
+            const section = e.target.getAttribute('data-section') || e.target.closest('.nav-tab').getAttribute('data-section');
+            
+            // Update active tab
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            e.target.closest('.nav-tab').classList.add('active');
+            
+            // Show corresponding section
+            document.querySelectorAll('.home-section, .seller-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            
+            document.getElementById(`${section}-section`).classList.add('active');
+        }
+
+        function handleSellerSubmit(e) {
+            e.preventDefault();
+            
+            const giftCodeType = document.getElementById('gift-code-type').value;
+            const giftCodeValue = document.getElementById('gift-code-value').value.trim();
+            const upiId = document.getElementById('upi-id').value.trim();
+            
+            if (!giftCodeType || !giftCodeValue || !upiId) {
+                showAlert('error', 'Error', 'Please fill in all fields');
+                return;
+            }
+            
+            // Basic UPI ID validation
+            if (!upiId.includes('@') || upiId.length < 5) {
+                showAlert('error', 'Error', 'Please enter a valid UPI ID');
+                return;
+            }
+            
+            showLoading('Submitting your gift code...');
+            
+            // Simulate submission
+            setTimeout(() => {
+                // Create submission message for Telegram
+                const message = `🎁 NEW GIFT CODE SUBMISSION\n\n` +
+                    `👤 Name: ${currentUser.name}\n` +
+                    `📧 Email: ${currentUser.email}\n` +
+                    `🎮 Code Type: ${giftCodeType}\n` +
+                    `🔑 Gift Code: ${giftCodeValue}\n` +
+                    `💳 UPI ID: ${upiId}\n` +
+                    `📅 Date: ${new Date().toLocaleString()}\n` +
+                    `⏳ Status: Pending Review`;
+                
+                // Send to Telegram (same as withdraw requests)
+                sendTelegramMessage(message);
+                
+                // Reset form
+                document.getElementById('seller-form').reset();
+                
+                hideLoading();
+                showAlert('success', 'Submission Successful!', 'Your gift code has been submitted successfully. We will review it and contact you soon.');
+            }, 2000);
+        }
+
+        function handleLogout() {
+            showLoading('Signing out...');
+            
+            setTimeout(() => {
+                localStorage.removeItem('sellerUser');
+                currentUser = null;
+                hideLoading();
+                showLogin();
+                showAlert('success', 'Logged Out', 'You have been successfully logged out');
+            }, 1000);
+        }
+
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('user-name').textContent = currentUser.name;
+                document.getElementById('user-email').textContent = currentUser.email;
+            }
+        }
+
+        function showAlert(type, title, message) {
+            const alertIcon = document.getElementById('alert-icon');
+            const alertTitle = document.getElementById('alert-title');
+            const alertMessage = document.getElementById('alert-message');
+            
+            alertIcon.className = `alert-icon ${type}`;
+            alertIcon.innerHTML = type === 'success' ? '<i class="fas fa-check"></i>' : '<i class="fas fa-exclamation-triangle"></i>';
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+            
+            alertOverlay.classList.add('active');
+        }
+
+        function hideAlert() {
+            alertOverlay.classList.remove('active');
+        }
+
+        function showLoading(text) {
+            document.getElementById('loading-text').textContent = text;
+            loadingOverlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.remove('active');
+        }
+
+        function sendTelegramMessage(message) {
+            const url = `https://api.telegram.org/bot${SELLER_BOT_API}/sendMessage`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: SELLER_CHAT_ID,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            }).catch(error => {
+                console.error('Failed to send Telegram message:', error);
+            });
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function generateUserId() {
+            return 'SELLER' + Math.floor(10000 + Math.random() * 90000);
+        }
+
+        // Add smooth animations
+        function addFadeInAnimation() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in-up');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.feature-card, .seller-card, .user-info').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Initialize animations when DOM is loaded
+        document.addEventListener('DOMContentLoaded', addFadeInAnimation);
+    </script>
+</body>
+</html>
